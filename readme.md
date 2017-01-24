@@ -1,0 +1,1 @@
+atomstrike test scripts and idea
