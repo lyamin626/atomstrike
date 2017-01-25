@@ -20,12 +20,6 @@ function getIntersection(ray,segment){
 	if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){ // Directions are the same.
 		return null;
 	}
-
-	// SOLVE FOR T1 & T2
-	// r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
-	// ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
-	// ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
-	// ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
 	let T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
 	let T1 = (s_px+s_dx*T2-r_px)/r_dx;
 
@@ -38,8 +32,7 @@ function getIntersection(ray,segment){
 		y: r_py+r_dy*T1,
 		param: T1
 	};
-	
-console.log(result);
+       console.log(result);
 	// Return the POINT OF INTERSECTION
 	return result;
 
@@ -48,31 +41,27 @@ console.log(result);
 
 function getIntersectionPoint(segment,ray,points){
 	let counter = 0;
-	let border = segment.border.slice();
-	let rabish = false;
+	let border = segment.getLine();
+	let breaking = false;
 	let end =false;
+	segment.breaking =[]
 	let closestIntersect = null;
-		for(let a=0;a<border.length;a++){
+		for(let i=0;i<border.length;i++){
 			counter++;
-		let intersect = getIntersection(ray,border[a]);
+		let intersect = getIntersection(ray,border[i]);
 		
-		if(!intersect) continue;				
-		
-		
-		
-		segment.border.splice(a+1,0,{border:{a:border[a],b:intersect},isnew:true});
+		if(!intersect) continue;						
+		segment.border.slice([i+1],0,{x:intersect.x,y:intersect.y,breaking:{a:intersect,b:segment.border[i]},isnew:true});
 		points.push(intersect);
 		// if(!closestIntersect || intersect.param<closestIntersect.param){
 			// closestIntersect =  intersect;
 			// // end=true;
 			// segment.fillcolor=true;
 		// }
-		rabish=true;
+		breaking=true;
 	}
-	return {end:end,counter:counter,rabish:rabish};
+	return {end:end,counter:counter,breaking:breaking};
 }
-
-
 
 
 ///////////////////////////////////////////////////////
@@ -96,31 +85,36 @@ function draw(){
 	let newpolygons = [];
 	for(let i=0;i<segments.length;i++){
 		let polygon = segments[i];
+		if(polygon.constructor.name!='Polygon'){
+		  continue;
+		}
 		polygon.fillcolor=false;
 		let result = getIntersectionPoint(polygon,ray,points);		
-		if(result.rabish) {
-			console.log('rabish');
+		if(result.breaking) {
+			console.log('field');
 			let newborder=[];
 			let newpolygon = new Polygon();
 			let rubishStart = false;
-			for(let border of polygon.border)
-			{
+			for(let z=0;z<polygon.border.length;z++){
+				let point=polygon.border[z];
 				if (!rubishStart){
-					if (!border.isnew){
-						newborder.push(border);
+					if (!point.isnew){
+						newborder.push(point);
 					}
 					else{
 						rubishStart=true;
-						newpolygon.border.push(border.border);
+						newborder.push(point.breaking);
+						newpolygon.border.push(point.breaking);
 					}
 				}
 				else{
-					if (border.isnew){
-						newpolygon.border.push(border.border);
+					if (!point.isnew){
+						newpolygon.border.push(point);
 					}
 					else{
 						rubishStart=false;
-						newborder.push(border);
+						newborder.push(point.breaking);
+						newpolygon.border.push(point.breaking)
 					}
 				}
 					
@@ -146,20 +140,20 @@ function draw(){
 		let border = segment.border;
 		
 		ctx.beginPath();
-			ctx.moveTo(border[0].a.x,border[0].a.y);
+			ctx.moveTo(border[0].x,border[0].y);
 			for(let a=0;a<border.length;a++){
-				let seg =border[a];
-				ctx.lineTo(seg.b.x,seg.b.y);	
+				let b =border[a];
+				ctx.lineTo(b.x,b.y);	
 				ctx.stroke();	
 			}
 			if(segment.fillcolor && segment.key=='polygon' ){	
 				 ctx.fillStyle = "green";
 				 ctx.fill();		
 			}
-		}
-		 ctx.closePath();		
-		
 	}
+	 ctx.closePath();		
+		
+	
 	
 	
 	for(let intersect of points.sort( (a,b)=>a.param-b.param))
@@ -182,45 +176,18 @@ function draw(){
 // LINE SEGMENTS
 let segments = [
 	// Polygon #1
-	{key:'polygon',border:[
-	{a:{x:100,y:150}, b:{x:120,y:50}},
-	{a:{x:120,y:50}, b:{x:200,y:80}},
-	{a:{x:200,y:80}, b:{x:140,y:210}},
-	{a:{x:140,y:210}, b:{x:100,y:150}},
-	]},
-	// Polygon #2
-	{key:'polygon',border:[
-	{a:{x:100,y:200}, b:{x:120,y:250}},
-	{a:{x:120,y:250}, b:{x:60,y:300}},
-	{a:{x:60,y:300}, b:{x:100,y:200}},
-	]},
-	// Polygon #3
-	{key:'polygon',border:[
-	{a:{x:200,y:260}, b:{x:220,y:150}},
-	{a:{x:220,y:150}, b:{x:300,y:200}},
-	{a:{x:300,y:200}, b:{x:350,y:320}},
-	{a:{x:350,y:320}, b:{x:200,y:260}},
-	]},
-	// Polygon #4
-	{key:'polygon',border:[
-	{a:{x:340,y:60}, b:{x:360,y:40}},
-	{a:{x:360,y:40}, b:{x:370,y:70}},
-	{a:{x:370,y:70}, b:{x:340,y:60}},
-	]},
-	// Polygon #5
-	{key:'polygon',border:[
-	{a:{x:450,y:190}, b:{x:560,y:170}},
-	{a:{x:560,y:170}, b:{x:540,y:270}},
-	{a:{x:540,y:270}, b:{x:430,y:290}},
-	{a:{x:430,y:290}, b:{x:450,y:190}},
-	]},
-	// Polygon #6
-	{key:'polygon',border:[
-	{a:{x:400,y:95}, b:{x:580,y:50}},
-	{a:{x:580,y:50}, b:{x:480,y:150}},
-	{a:{x:480,y:150}, b:{x:400,y:95}}
-	]},
-	// Border
+	new Polygon([{x:100,y:150},{x:200,y:80},{x:140,y:210}])
+	,// Polygon #2
+	new Polygon([{x:100,y:200},{x:120,y:250},{x:60,y:300}])
+	,// Polygon #3
+	new Polygon([{x:200,y:260},{x:220,y:150},{x:300,y:200},{x:350,y:320}])
+	,// Polygon #4
+	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70},{x:350,y:320}])
+	,// Polygon #5
+	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270},{x:430,y:290}])
+	,// Polygon #6
+	new Polygon([{x:400,y:95},{x:580,y:50},{x:480,y:150},{x:430,y:290}])
+	,// Border
 	{key:'field',border:[
 	{a:{x:0,y:0}, b:{x:640,y:0}},
 	{a:{x:640,y:0}, b:{x:640,y:360}},
@@ -230,14 +197,7 @@ let segments = [
 ];
 
 
-class Polygon {
-    constructor(border) {
-        this.border = border||[];
-		}
-    explosion() {
-        console.log('notworking');
-    }
-}
+
 
 // DRAW LOOP
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
