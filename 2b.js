@@ -24,15 +24,15 @@ function getIntersection(ray,segment){
 	let T1 = (s_px+s_dx*T2-r_px)/r_dx;
 
 	// Must be within parametic whatevers for RAY/SEGMENT
-	if(T1<0)	{ console.log('t1');		return null;}
-	if(T2<0 || T2>1) { console.log('t2'); return null;}
+	if(T1<0)	{		return null;}
+	if(T2<0 || T2>1) {  return null;}
 	
 	let result = {
 		x: r_px+r_dx*T1,
 		y: r_py+r_dy*T1,
 		param: T1
 	};
-       console.log(result);
+      
 	// Return the POINT OF INTERSECTION
 	return result;
 
@@ -50,8 +50,9 @@ function getIntersectionPoint(segment,ray,points){
 			counter++;
 		let intersect = getIntersection(ray,border[i]);
 		
-		if(!intersect) continue;						
-		segment.border.slice([i+1],0,{x:intersect.x,y:intersect.y,breaking:{a:intersect,b:segment.border[i]},isnew:true});
+		if(!intersect) continue;
+			console.log(i);
+		segment.border.splice([i],0,{x:intersect.x,y:intersect.y,breaking:border[i],isnew:true});
 		points.push(intersect);
 		// if(!closestIntersect || intersect.param<closestIntersect.param){
 			// closestIntersect =  intersect;
@@ -91,7 +92,7 @@ function draw(){
 		polygon.fillcolor=false;
 		let result = getIntersectionPoint(polygon,ray,points);		
 		if(result.breaking) {
-			console.log('field');
+			console.log(polygon.border);
 			let newborder=[];
 			let newpolygon = new Polygon();
 			let rubishStart = false;
@@ -102,9 +103,10 @@ function draw(){
 						newborder.push(point);
 					}
 					else{
-						rubishStart=true;
-						newborder.push(point.breaking);
-						newpolygon.border.push(point.breaking);
+						rubishStart=true;						
+						newpolygon.border.push({x:point.x,y:point.y});
+						newborder.push({x:point.breaking.a.x,y:point.breaking.a.y});
+						
 					}
 				}
 				else{
@@ -113,12 +115,15 @@ function draw(){
 					}
 					else{
 						rubishStart=false;
-						newborder.push(point.breaking);
-						newpolygon.border.push(point.breaking)
+						newborder.push({x:point.x,y:point.y});
+						newpolygon.border.push({x:point.breaking.a.x,y:point.breaking.a.y});
+						
+						point.isnew=null;
 					}
 				}
 					
 			}
+			console.log(newborder,newpolygon);
 			polygon.border  = newborder;
 			newpolygons.push(newpolygon);
 		}
@@ -140,18 +145,24 @@ function draw(){
 		let border = segment.border;
 		
 		ctx.beginPath();
-			ctx.moveTo(border[0].x,border[0].y);
+			//ctx.moveTo(border[0].x,border[0].y);
 			for(let a=0;a<border.length;a++){
 				let b =border[a];
-				ctx.lineTo(b.x,b.y);	
-				ctx.stroke();	
+				if(a==0){
+					ctx.moveTo(b.x,b.y)
+				}else{
+					ctx.lineTo(b.x,b.y);	
+					
+				}
 			}
+			 ctx.closePath();	
+			 ctx.stroke();	
 			if(segment.fillcolor && segment.key=='polygon' ){	
 				 ctx.fillStyle = "green";
 				 ctx.fill();		
 			}
 	}
-	 ctx.closePath();		
+		
 		
 	
 	
@@ -182,11 +193,11 @@ let segments = [
 	,// Polygon #3
 	new Polygon([{x:200,y:260},{x:220,y:150},{x:300,y:200},{x:350,y:320}])
 	,// Polygon #4
-	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70},{x:350,y:320}])
+	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70}])
 	,// Polygon #5
-	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270},{x:430,y:290}])
+	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}])
 	,// Polygon #6
-	new Polygon([{x:400,y:95},{x:580,y:50},{x:480,y:150},{x:430,y:290}])
+	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}])
 	,// Border
 	{key:'field',border:[
 	{a:{x:0,y:0}, b:{x:640,y:0}},
