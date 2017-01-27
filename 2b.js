@@ -47,13 +47,16 @@ function getIntersectionPoint(segment,ray,points){
 	segment.breaking =[]
 	let closestIntersect = null;
 		for(let i=0;i<border.length;i++){
-			counter++;
+			
 		let intersect = getIntersection(ray,border[i]);
 		
 		if(!intersect) continue;
 			console.log(i);
-		segment.border.splice([i],0,{x:intersect.x,y:intersect.y,breaking:border[i],isnew:true});
+			counter++;
+		segment.border.splice([i+counter],0,{x:intersect.x,y:intersect.y,breaking:border[i],isnew:true});
+		console.log('with counter: '+(i+counter));
 		points.push(intersect);
+		
 		// if(!closestIntersect || intersect.param<closestIntersect.param){
 			// closestIntersect =  intersect;
 			// // end=true;
@@ -90,6 +93,7 @@ function draw(){
 		  continue;
 		}
 		polygon.fillcolor=false;
+		console.log(polygon.border);
 		let result = getIntersectionPoint(polygon,ray,points);		
 		if(result.breaking) {
 			console.log(polygon.border);
@@ -105,7 +109,7 @@ function draw(){
 					else{
 						rubishStart=true;						
 						newpolygon.border.push({x:point.x,y:point.y});
-						newborder.push({x:point.breaking.a.x,y:point.breaking.a.y});
+						newborder.push({x:point.x,y:point.y});
 						
 					}
 				}
@@ -116,7 +120,7 @@ function draw(){
 					else{
 						rubishStart=false;
 						newborder.push({x:point.x,y:point.y});
-						newpolygon.border.push({x:point.breaking.a.x,y:point.breaking.a.y});
+						newpolygon.border.push({x:point.x,y:point.y});
 						
 						point.isnew=null;
 					}
@@ -186,17 +190,17 @@ function draw(){
 
 // LINE SEGMENTS
 let segments = [
-	// Polygon #1
+	// polygon #1
 	new Polygon([{x:100,y:150},{x:200,y:80},{x:140,y:210}])
-	,// Polygon #2
+	,// polygon #2
 	new Polygon([{x:100,y:200},{x:120,y:250},{x:60,y:300}])
-	,// Polygon #3
+	,// polygon #3
 	new Polygon([{x:200,y:260},{x:220,y:150},{x:300,y:200},{x:350,y:320}])
-	,// Polygon #4
+	,// polygon #4
 	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70}])
-	,// Polygon #5
+	,// polygon #5
 	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}])
-	,// Polygon #6
+	,// polygon #6*/
 	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}])
 	,// Border
 	{key:'field',border:[
