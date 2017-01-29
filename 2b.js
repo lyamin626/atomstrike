@@ -38,6 +38,16 @@ function getIntersection(ray,segment){
 
 }
 
+function expansion(a,b){
+	//random expansion
+	let rnd= Math.random()*10%10;
+	let dx = a.x - b.x;
+	let dy = a.y - b.y;
+	let length = Math.sqrt(dx*dx+dy*dy);
+	let shiftx=rnd*dx/length;
+	let shifty=rnd*dy/length;
+    return {x:b.x+shiftx,y:b.y+shifty};
+}
 
 function getIntersectionPoint(segment,ray,points){
 	let counter = 0;
@@ -100,6 +110,7 @@ function draw(){
 			let newborder=[];
 			let newpolygon = new Polygon();
 			let rubishStart = false;
+			
 			for(let z=0;z<polygon.border.length;z++){
 				let point=polygon.border[z];
 				if (!rubishStart){
@@ -108,8 +119,14 @@ function draw(){
 					}
 					else{
 						rubishStart=true;						
-						newpolygon.border.push({x:point.x,y:point.y});
-						newborder.push({x:point.x,y:point.y});
+						
+						let ax,ay,bx,y1=0;
+						newpolygon.border.push(expansion(point.breaking.b,{x:point.x,y:point.y}));
+						
+						newborder.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
+						
+						
+						
 						
 					}
 				}
@@ -119,8 +136,8 @@ function draw(){
 					}
 					else{
 						rubishStart=false;
-						newborder.push({x:point.x,y:point.y});
-						newpolygon.border.push({x:point.x,y:point.y});
+						newborder.push(expansion(point.breaking.b, {x:point.x,y:point.y}));
+						newpolygon.border.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
 						
 						point.isnew=null;
 					}
