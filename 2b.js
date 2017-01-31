@@ -61,10 +61,10 @@ function getIntersectionPoint(segment,ray,points){
 		let intersect = getIntersection(ray,border[i]);
 		
 		if(!intersect) continue;
-			console.log(i);
+			
 			counter++;
 		segment.border.splice([i+counter],0,{x:intersect.x,y:intersect.y,breaking:border[i],isnew:true});
-		console.log('with counter: '+(i+counter));
+		
 		points.push(intersect);
 		
 		// if(!closestIntersect || intersect.param<closestIntersect.param){
@@ -99,14 +99,14 @@ function draw(){
 	let newpolygons = [];
 	for(let i=0;i<segments.length;i++){
 		let polygon = segments[i];
-		if(polygon.constructor.name!='Polygon'){
+		if(!polygon.iskey('polygon')){
 		  continue;
 		}
 		polygon.fillcolor=false;
-		console.log(polygon.border);
+
 		let result = getIntersectionPoint(polygon,ray,points);		
 		if(result.breaking) {
-			console.log(polygon.border);
+
 			let newborder=[];
 			let newpolygon = new Polygon();
 			let rubishStart = false;
@@ -119,15 +119,9 @@ function draw(){
 					}
 					else{
 						rubishStart=true;						
-						
-						let ax,ay,bx,y1=0;
 						newpolygon.border.push(expansion(point.breaking.b,{x:point.x,y:point.y}));
-						
 						newborder.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
-						
-						
-						
-						
+					
 					}
 				}
 				else{
@@ -144,14 +138,14 @@ function draw(){
 				}
 					
 			}
-			console.log(newborder,newpolygon);
+
 			polygon.border  = newborder;
 			newpolygons.push(newpolygon);
 		}
 			
 		
 	}
-	console.log('stop closestIntersect:' + newpolygons.length);
+	// console.log('stop closestIntersect:' + newpolygons.length);
 	
 	for(var polygon of newpolygons){
 		segments.push(polygon);
@@ -162,26 +156,26 @@ function draw(){
 	ctx.lineWidth =1;
 	ctx.strokeStyle = "#999";
 	for(let i=0;i<segments.length;i++){
-		let segment = segments[i];
-		let border = segment.border;
+		let segment = segments[i].draw(ctx);
+		// let border = segment.border;
 		
-		ctx.beginPath();
-			//ctx.moveTo(border[0].x,border[0].y);
-			for(let a=0;a<border.length;a++){
-				let b =border[a];
-				if(a==0){
-					ctx.moveTo(b.x,b.y)
-				}else{
-					ctx.lineTo(b.x,b.y);	
+		// ctx.beginPath();
+			// //ctx.moveTo(border[0].x,border[0].y);
+			// for(let a=0;a<border.length;a++){
+				// let b =border[a];
+				// if(a==0){
+					// ctx.moveTo(b.x,b.y)
+				// }else{
+					// ctx.lineTo(b.x,b.y);	
 					
-				}
-			}
-			 ctx.closePath();	
-			 ctx.stroke();	
-			if(segment.fillcolor && segment.key=='polygon' ){	
-				 ctx.fillStyle = "green";
-				 ctx.fill();		
-			}
+				// }
+			// }
+			 // ctx.closePath();	
+			 // ctx.stroke();	
+			// if(segment.fillcolor && segment.key=='polygon' ){	
+				 // ctx.fillStyle = "green";
+				 // ctx.fill();		
+			// }
 	}
 		
 		
@@ -203,6 +197,7 @@ function draw(){
     ctx.arc(intersect.x, intersect.y, 4, 0, 2*Math.PI, false);
     ctx.fill(); 
 	}
+	if(selectRect!=null) {selectRect.draw();}
 }
 
 // LINE SEGMENTS
@@ -219,13 +214,15 @@ let segments = [
 	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}])
 	,// polygon #6*/
 	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}])
-	,// Border
-	{key:'field',border:[
-	{a:{x:0,y:0}, b:{x:640,y:0}},
-	{a:{x:640,y:0}, b:{x:640,y:360}},
-	{a:{x:640,y:360}, b:{x:0,y:360}},
-	{a:{x:0,y:360}, b:{x:0,y:0}}
-	]},
+	//,// Border
+	// {key:'field',border:[
+	// {a:{x:0,y:0}, b:{x:640,y:0}},
+	// {a:{x:640,y:0}, b:{x:640,y:360}},
+	// {a:{x:640,y:360}, b:{x:0,y:360}},
+	// {a:{x:0,y:360}, b:{x:0,y:0}}
+	// ]}
+	,new Solder({x: canvas.width/2,y: canvas.height/2})
+	,
 ];
 
 
@@ -239,7 +236,7 @@ function drawLoop(){
     requestAnimationFrame(drawLoop);
     if(updateCanvas){
     	draw();
-    	updateCanvas = false;
+    	//updateCanvas = false;
     }
 	}
 	catch(e)
@@ -249,20 +246,44 @@ function drawLoop(){
 	}
 }
 window.onload = function(){
-	
+	drawLoop();
 };
 
 // MOUSE	
-let Mouse = {
-	x: canvas.width/2+10,
-	y: canvas.height/2
-};
-canvas.onmousemove = function(event){	
-	Mouse.x = event.clientX;
-	Mouse.y = event.clientY;
+ let Mouse = {
+	 x: canvas.width/2+10,
+	 y: canvas.height/2
+ };
+// canvas.onmousemove = function(event){	
+	// Mouse.x = event.clientX;
+	// Mouse.y = event.clientY;
 	
-};
+// };
+//canvas.onmousedown = function(event){ updateCanvas = true;drawLoop();}
+let selectRect = null;
+mouseDownListener = function(e){
+	
+	selectRect = new SelectRect(e);
+}
+mouseUpListener = function(e){
+	if(selectRect!==null){
+		
+		
+		selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));
+		selectRect =null;
+	}
+	
+}
 
-canvas.onmousedown = function(event){ updateCanvas = true;drawLoop();}
+mouseMoveListener = function(e){
+	if(selectRect!==null){
+		selectRect.mousemove(e);
+	}
+}
 
 
+
+
+canvas.addEventListener("mousedown", mouseDownListener, false);
+canvas.addEventListener("mouseup", mouseUpListener, false);
+canvas.addEventListener("mousemove", mouseMoveListener, false);
