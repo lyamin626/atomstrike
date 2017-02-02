@@ -28,6 +28,7 @@ class Polygon {
 				ctx.lineTo(b.x,b.y);
 			}
 		}
+		ctx.strokeStyle='gray';
 		ctx.closePath();	
 		ctx.stroke();	
 		
@@ -49,31 +50,21 @@ class SelectRect{
 		this.w = e.pageX-this.x;
 		this.h = e.pageY-this.y;
 	}
-	getZone(){
-		return {x:this.x,y:this.y,w:this.w,h:this.h};
+	dontMove(){
+		return this.w==this.h && this.h==0;
 	}
-	selectSolder(solders){
-		console.log('x:'+this.x,'y:'+this.y,'w:'+this.w,'h:'+this.h);
-		let lengthY = Math.sqrt((this.y -this.w)*(this.y -this.w));
-		let lengthX = Math.sqrt((this.x- this.h)*(this.x- this.h));
-		solders.forEach(d=>d.setSelect(false));
-		let y= Math.min(this.y,this.w);
-		let x = Math.min(this.x,this.h);
-		let selectsolers = solders.filter(function(d)
-		{
-			let xx= d.getPos().x-x;
-			let yy = d.getPos().y- y;
-			return  xx >=0 && xx <=lengthX && yy >=0 && yy<= lengthX;
-		}
-			
-		);
-		if(selectsolers.length>0){
-			selectsolers.forEach(d=>d.setSelect(true));
-		}		
+	getZone(){
+		return {x:this.x,y:this.y,x1:this.x+this.h,y1: this.y+this.w};
+	}
+	selectSolder(unit){				
+		let zone = this.getZone();
+		unit.forEach(function(d){
+			d.setSelect(d.pos.x>=zone.x && d.pos.x<=zone.x1 && d.pos.y >=zone.y && d.pos.y<= zone.y1)
+		});
 	}
 	draw(сtx){
 		 ctx.beginPath();
-		
+		ctx.strokeStyle ='back';
 		 
 		 ctx.rect(this.x,this.y,this.w,this.h);
 		 ctx.closePath();
@@ -95,7 +86,7 @@ class Solder{
       ctx.arc(this.pos.x, this.pos.y, this.weight/5, 0, 2 * Math.PI, false);
       ctx.fillStyle = 'green';
       ctx.fill();
-      ctx.lineWidth =2;
+      ctx.lineWidth =1;
       ctx.strokeStyle = this.selected?'#FF0000':'#003300';
       ctx.stroke();
 	}
@@ -105,7 +96,32 @@ class Solder{
 	iskey(name){
 		return name == 'solder';
 	}
+	hasSelect(){ return this.selected;}
 	getPos(){
 		return this.pos;
 	}
+	// control(evt){
+		  // switch (evt.keyCode) {
+			// case 87:  /* Up - [w]*/
+				// if (y - dy > 0){ 
+				// y -= dy;
+				// }
+			  // break;
+			// case 83:  /* Down [s] */
+				// if (y + dy < HEIGHT){ 
+				// y += dy;
+				// }
+			  // break;
+			// case 65:  /* Left [a] */
+				// if (x - dx > 0){ 
+				// x -= dx;
+				// }
+			  // break;
+			// case 68:  /* Right -[d] */
+				// if (x + dx < WIDTH){ 
+				// x += dx;
+				// }
+			// break;
+		// }
+	// }
 }

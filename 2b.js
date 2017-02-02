@@ -1,29 +1,23 @@
 
-// Find intersection of RAY & SEGMENT
 function getIntersection(ray,segment){
-
-	// RAY in parametric: Point + Direction*T1
 	let r_px = ray.a.x;
 	let r_py = ray.a.y;
 	let r_dx = ray.b.x-ray.a.x;
 	let r_dy = ray.b.y-ray.a.y;
 
-	// SEGMENT in parametric: Point + Direction*T2
 	let s_px = segment.a.x;
 	let s_py = segment.a.y;
 	let s_dx = segment.b.x-segment.a.x;
 	let s_dy = segment.b.y-segment.a.y;
 
-	// Are they parallel? If so, no intersect
 	let r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
 	let s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
-	if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){ // Directions are the same.
+	if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){
 		return null;
 	}
 	let T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
 	let T1 = (s_px+s_dx*T2-r_px)/r_dx;
 
-	// Must be within parametic whatevers for RAY/SEGMENT
 	if(T1<0)	{		return null;}
 	if(T2<0 || T2>1) {  return null;}
 	
@@ -33,7 +27,6 @@ function getIntersection(ray,segment){
 		param: T1
 	};
       
-	// Return the POINT OF INTERSECTION
 	return result;
 
 }
@@ -85,10 +78,10 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 function draw(){
 	
-	// Clear canvas
+	// Clear canvas  this part next for refactoring, all redraw is bad idea.
 	ctx.clearRect(0,0,canvas.width,canvas.height);
  
-	// Ray from center of screen to mouse
+	
 	let ray = {
 		a:{x:320,y:180},
 		b:{x:Mouse.x,y:Mouse.y}
@@ -156,48 +149,26 @@ function draw(){
 	ctx.lineWidth =1;
 	ctx.strokeStyle = "#999";
 	for(let i=0;i<segments.length;i++){
-		let segment = segments[i].draw(ctx);
-		// let border = segment.border;
-		
-		// ctx.beginPath();
-			// //ctx.moveTo(border[0].x,border[0].y);
-			// for(let a=0;a<border.length;a++){
-				// let b =border[a];
-				// if(a==0){
-					// ctx.moveTo(b.x,b.y)
-				// }else{
-					// ctx.lineTo(b.x,b.y);	
-					
-				// }
-			// }
-			 // ctx.closePath();	
-			 // ctx.stroke();	
-			// if(segment.fillcolor && segment.key=='polygon' ){	
-				 // ctx.fillStyle = "green";
-				 // ctx.fill();		
-			// }
+		let segment = segments[i].draw(ctx);		
 	}
 		
-		
+	// for(let intersect of points.sort( (a,b)=>a.param-b.param))
+	// {			
+	// // Draw red laser
+	// ctx.strokeStyle = "#dd3838";
+	// ctx.beginPath();
+	// ctx.moveTo(320,180);
+	// ctx.lineTo(intersect.x,intersect.y);
+	// ctx.stroke();
 	
-	
-	
-	for(let intersect of points.sort( (a,b)=>a.param-b.param))
-	{			
-	// Draw red laser
-	ctx.strokeStyle = "#dd3838";
-	ctx.beginPath();
-	ctx.moveTo(320,180);
-	ctx.lineTo(intersect.x,intersect.y);
-	ctx.stroke();
-	
-	// Draw red dot
-	ctx.fillStyle = "#dd3838";
-	ctx.beginPath();
-    ctx.arc(intersect.x, intersect.y, 4, 0, 2*Math.PI, false);
-    ctx.fill(); 
-	}
-	if(selectRect!=null) {selectRect.draw();}
+	// // Draw red dot
+	// ctx.fillStyle = "#dd3838";
+	// ctx.beginPath();
+    // ctx.arc(intersect.x, intersect.y, 4, 0, 2*Math.PI, false);
+    // ctx.fill(); 
+	// }
+	// if(selectRect!=null) 
+	// {selectRect.draw();}
 }
 
 // LINE SEGMENTS
@@ -214,13 +185,7 @@ let segments = [
 	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}])
 	,// polygon #6*/
 	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}])
-	//,// Border
-	// {key:'field',border:[
-	// {a:{x:0,y:0}, b:{x:640,y:0}},
-	// {a:{x:640,y:0}, b:{x:640,y:360}},
-	// {a:{x:640,y:360}, b:{x:0,y:360}},
-	// {a:{x:0,y:360}, b:{x:0,y:0}}
-	// ]}
+	
 	,new Solder({x: canvas.width/2,y: canvas.height/2})
 	,
 ];
@@ -251,28 +216,31 @@ window.onload = function(){
 
 // MOUSE	
  let Mouse = {
-	 x: canvas.width/2+10,
-	 y: canvas.height/2
+	 x:canvas.width/2,
+	 y:0
  };
-// canvas.onmousemove = function(event){	
-	// Mouse.x = event.clientX;
-	// Mouse.y = event.clientY;
+ // canvas.onmousedown = function(event){	
+	 // Mouse.x = event.clientX;
+	 // Mouse.y = event.clientY;
 	
-// };
+ // };
 //canvas.onmousedown = function(event){ updateCanvas = true;drawLoop();}
 let selectRect = null;
+
 mouseDownListener = function(e){
-	
 	selectRect = new SelectRect(e);
 }
 mouseUpListener = function(e){
 	if(selectRect!==null){
-		
-		
-		selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));
-		selectRect =null;
+		if(selectRect.dontMove()){ 
+			 Mouse.x = event.clientX;
+			 Mouse.y = event.clientY;
+		}
+		else{
+			selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));
+		}
+		selectRect=null;
 	}
-	
 }
 
 mouseMoveListener = function(e){
@@ -281,9 +249,12 @@ mouseMoveListener = function(e){
 	}
 }
 
+keyDownListener = function(e){
+	let units =segments.filter(function(d){return d.hasSelect()});
+	units.control(e);
+}
 
-
-
+//canvas.addEventListener('keydown',keyDownListener,true);
 canvas.addEventListener("mousedown", mouseDownListener, false);
 canvas.addEventListener("mouseup", mouseUpListener, false);
 canvas.addEventListener("mousemove", mouseMoveListener, false);
