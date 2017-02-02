@@ -53,18 +53,23 @@ class SelectRect{
 		return {x:this.x,y:this.y,w:this.w,h:this.h};
 	}
 	selectSolder(solders){
-		let modulx = Math.sqrt((this.x-this.w)*(this.x-this.w));
-		let moduly = Math.sqrt((this.y-this.h)*(this.y-this.h));
-		solders.forEach(d=>d.setSelect==false);
-		let selectsolers = solders.filter(d=>
-		
-			d.getPos().x- this.x>=0 && d.getPos().x- this.x<=modulx
-			&& d.getPos().y- this.y>=0 && (d.getPos().y-this.y)<= moduly
+		console.log('x:'+this.x,'y:'+this.y,'w:'+this.w,'h:'+this.h);
+		let lengthY = Math.sqrt((this.y -this.w)*(this.y -this.w));
+		let lengthX = Math.sqrt((this.x- this.h)*(this.x- this.h));
+		solders.forEach(d=>d.setSelect(false));
+		let y= Math.min(this.y,this.w);
+		let x = Math.min(this.x,this.h);
+		let selectsolers = solders.filter(function(d)
+		{
+			let xx= d.getPos().x-x;
+			let yy = d.getPos().y- y;
+			return  xx >=0 && xx <=lengthX && yy >=0 && yy<= lengthX;
+		}
+			
 		);
 		if(selectsolers.length>0){
-			selectsolers.setSelect(true);
-		}
-		console.log(modulx,moduly,selectsolers);
+			selectsolers.forEach(d=>d.setSelect(true));
+		}		
 	}
 	draw(сtx){
 		 ctx.beginPath();
@@ -90,8 +95,8 @@ class Solder{
       ctx.arc(this.pos.x, this.pos.y, this.weight/5, 0, 2 * Math.PI, false);
       ctx.fillStyle = 'green';
       ctx.fill();
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = this.selected?'#333300':'#003300';
+      ctx.lineWidth =2;
+      ctx.strokeStyle = this.selected?'#FF0000':'#003300';
       ctx.stroke();
 	}
 	setSelect(select){
