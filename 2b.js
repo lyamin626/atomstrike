@@ -12,7 +12,7 @@ function getIntersection(ray,segment){
 
 	let r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
 	let s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
-	if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){
+	if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag || r_dx==0){
 		return null;
 	}
 	let T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
@@ -36,9 +36,18 @@ function expansion(a,b){
 	let rnd= Math.random()*10%10;
 	let dx = a.x - b.x;
 	let dy = a.y - b.y;
+	if(dx<0) dx=0;
+	if(dy<0) dx=0;
 	let length = Math.sqrt(dx*dx+dy*dy);
+	if(length==0)
+	{
+		console.log('errpr');
+		 return {x:0,y:0};
+	}
+	console.log()
 	let shiftx=rnd*dx/length;
 	let shifty=rnd*dy/length;
+	console.log({x:b.x+shiftx,y:b.y+shifty});
     return {x:b.x+shiftx,y:b.y+shifty};
 }
 
@@ -96,7 +105,6 @@ function draw(){
 		  continue;
 		}
 		polygon.fillcolor=false;
-
 		let result = getIntersectionPoint(polygon,ray,points);		
 		if(result.breaking) {
 
@@ -128,8 +136,7 @@ function draw(){
 						
 						point.isnew=null;
 					}
-				}
-					
+				}					
 			}
 
 			polygon.border  = newborder;
@@ -138,18 +145,19 @@ function draw(){
 			
 		
 	}
-	// console.log('stop closestIntersect:' + newpolygons.length);
+	 console.log('stop closestIntersect:' + newpolygons.length);
 	
 	for(var polygon of newpolygons){
 		segments.push(polygon);
 	}
+	newpolygons =[];
 		
 		
 	// Draw segments
 	ctx.lineWidth =1;
 	ctx.strokeStyle = "#999";
 	for(let i=0;i<segments.length;i++){
-		let segment = segments[i].draw(ctx);		
+		segments[i].draw(ctx);		
 	}
 		
 	// for(let intersect of points.sort( (a,b)=>a.param-b.param))
@@ -167,24 +175,24 @@ function draw(){
     // ctx.arc(intersect.x, intersect.y, 4, 0, 2*Math.PI, false);
     // ctx.fill(); 
 	// }
-	// if(selectRect!=null) 
-	// {selectRect.draw();}
+	if(selectRect!=null) 
+	 {selectRect.draw();}
 }
 
 // LINE SEGMENTS
 let segments = [
 	// polygon #1
-	new Polygon([{x:100,y:150},{x:200,y:80},{x:140,y:210}])
+	new Polygon([{x:100,y:150},{x:200,y:80},{x:140,y:210}],'polygon #1')
 	,// polygon #2
-	new Polygon([{x:100,y:200},{x:120,y:250},{x:60,y:300}])
+	new Polygon([{x:100,y:200},{x:120,y:250},{x:60,y:300}],'polygon #2')
 	,// polygon #3
-	new Polygon([{x:200,y:260},{x:220,y:150},{x:300,y:200},{x:350,y:320}])
+	new Polygon([{x:200,y:260},{x:220,y:150},{x:300,y:200},{x:350,y:320}],'polygon #3')
 	,// polygon #4
-	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70}])
+	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70}],'polygon #4')
 	,// polygon #5
-	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}])
+	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}],'polygon #5')
 	,// polygon #6*/
-	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}])
+	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}],'polygon #5')
 	
 	,new Solder({x: canvas.width/2,y: canvas.height/2})
 	,
@@ -198,10 +206,12 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 let updateCanvas = true;
 function drawLoop(){
 	try{
-    requestAnimationFrame(drawLoop);
+   
     if(updateCanvas){
     	draw();
+		requestAnimationFrame(drawLoop);
     	//updateCanvas = false;
+		 
     }
 	}
 	catch(e)
@@ -228,7 +238,9 @@ window.onload = function(){
 let selectRect = null;
 
 mouseDownListener = function(e){
+	
 	selectRect = new SelectRect(e);
+	
 }
 mouseUpListener = function(e){
 	if(selectRect!==null){
@@ -241,12 +253,16 @@ mouseUpListener = function(e){
 		}
 		selectRect=null;
 	}
+	
+	
 }
 
 mouseMoveListener = function(e){
 	if(selectRect!==null){
 		selectRect.mousemove(e);
 	}
+	
+	
 }
 
 keyDownListener = function(e){
@@ -254,7 +270,7 @@ keyDownListener = function(e){
 	units.control(e);
 }
 
-//canvas.addEventListener('keydown',keyDownListener,true);
+canvas.addEventListener('keydown',keyDownListener,true);
 canvas.addEventListener("mousedown", mouseDownListener, false);
 canvas.addEventListener("mouseup", mouseUpListener, false);
 canvas.addEventListener("mousemove", mouseMoveListener, false);

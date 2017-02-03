@@ -1,10 +1,12 @@
 class Polygon {
-    constructor(border) {
+    constructor(border,name) {
         this.border = border||[];
+		this.name=name;
 		}
     explosion() {
         console.log('notworking');
     }
+	getName(){return this.name;}
 	getLine(){
 		let lines =[];
 		for (let i=1;i<this.border.length;i++){
@@ -51,7 +53,7 @@ class SelectRect{
 		this.h = e.pageY-this.y;
 	}
 	dontMove(){
-		return this.w==this.h && this.h==0;
+		return (this.w==this.h && this.h==0);
 	}
 	getZone(){
 		return {x:this.x,y:this.y,x1:this.x+this.h,y1: this.y+this.w};
@@ -100,28 +102,28 @@ class Solder{
 	getPos(){
 		return this.pos;
 	}
-	// control(evt){
-		  // switch (evt.keyCode) {
-			// case 87:  /* Up - [w]*/
-				// if (y - dy > 0){ 
-				// y -= dy;
-				// }
-			  // break;
-			// case 83:  /* Down [s] */
-				// if (y + dy < HEIGHT){ 
-				// y += dy;
-				// }
-			  // break;
-			// case 65:  /* Left [a] */
-				// if (x - dx > 0){ 
-				// x -= dx;
-				// }
-			  // break;
-			// case 68:  /* Right -[d] */
-				// if (x + dx < WIDTH){ 
-				// x += dx;
-				// }
-			// break;
-		// }
-	// }
+	control(evt){
+		  switch (evt.keycode) {
+			case 87:  /* up - [w]*/
+				if (y - dy > 0){ 
+				y -= dy;
+				}
+			  break;
+			case 83:  /* down [s] */
+				if (y + dy < height){ 
+				y += dy;
+				}
+			  break;
+			case 65:  /* left [a] */
+				if (x - dx > 0){ 
+				x -= dx;
+				}
+			  break;
+			case 68:  /* right -[d] */
+				if (x + dx < width){ 
+				x += dx;
+				}
+			break;
+		}
+	}
 }
