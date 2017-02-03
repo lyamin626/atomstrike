@@ -80,6 +80,7 @@ class SelectRect{
 class Solder{
 	constructor(position,param){
 		this.weight = 50;
+		this.speed=100/50;
 		this.selected=false;
 		this.pos = position;
 	}
@@ -103,25 +104,25 @@ class Solder{
 		return this.pos;
 	}
 	control(evt){
-		  switch (evt.keycode) {
+		  switch (evt.keyCode) {
 			case 87:  /* up - [w]*/
-				if (y - dy > 0){ 
-				y -= dy;
+				if (this.pos.y - this.speed > 0){ 
+				this.pos.y -= this.speed;
 				}
 			  break;
 			case 83:  /* down [s] */
-				if (y + dy < height){ 
-				y += dy;
+				if (this.pos.y + this.speed < 500){ 
+				this.pos.y += this.speed;
 				}
 			  break;
 			case 65:  /* left [a] */
-				if (x - dx > 0){ 
-				x -= dx;
+				if (this.pos.x - this.speed > 0){ 
+				this.pos.x -= this.speed;
 				}
 			  break;
 			case 68:  /* right -[d] */
-				if (x + dx < width){ 
-				x += dx;
+				if (this.pos.x + this.speed < 500){ 
+				this.pos.x += this.speed;
 				}
 			break;
 		}

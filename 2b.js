@@ -91,67 +91,6 @@ function draw(){
 	ctx.clearRect(0,0,canvas.width,canvas.height);
  
 	
-	let ray = {
-		a:{x:320,y:180},
-		b:{x:Mouse.x,y:Mouse.y}
-	};
-
-	// Find CLOSEST intersection
-	let points = [];
-	let newpolygons = [];
-	for(let i=0;i<segments.length;i++){
-		let polygon = segments[i];
-		if(!polygon.iskey('polygon')){
-		  continue;
-		}
-		polygon.fillcolor=false;
-		let result = getIntersectionPoint(polygon,ray,points);		
-		if(result.breaking) {
-
-			let newborder=[];
-			let newpolygon = new Polygon();
-			let rubishStart = false;
-			
-			for(let z=0;z<polygon.border.length;z++){
-				let point=polygon.border[z];
-				if (!rubishStart){
-					if (!point.isnew){
-						newborder.push(point);
-					}
-					else{
-						rubishStart=true;						
-						newpolygon.border.push(expansion(point.breaking.b,{x:point.x,y:point.y}));
-						newborder.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
-					
-					}
-				}
-				else{
-					if (!point.isnew){
-						newpolygon.border.push(point);
-					}
-					else{
-						rubishStart=false;
-						newborder.push(expansion(point.breaking.b, {x:point.x,y:point.y}));
-						newpolygon.border.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
-						
-						point.isnew=null;
-					}
-				}					
-			}
-
-			polygon.border  = newborder;
-			newpolygons.push(newpolygon);
-		}
-			
-		
-	}
-	 console.log('stop closestIntersect:' + newpolygons.length);
-	
-	for(var polygon of newpolygons){
-		segments.push(polygon);
-	}
-	newpolygons =[];
-		
 		
 	// Draw segments
 	ctx.lineWidth =1;
@@ -245,8 +184,76 @@ mouseDownListener = function(e){
 mouseUpListener = function(e){
 	if(selectRect!==null){
 		if(selectRect.dontMove()){ 
-			 Mouse.x = event.clientX;
-			 Mouse.y = event.clientY;
+			
+			 
+			 
+			let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
+			for(let unit of units)
+			{		
+				let position =unit.getPos();
+				let ray = {
+					a:{x:position.x,y:position.y},
+					b:{x: event.clientX,y:event.clientY}
+				};
+
+				// Find CLOSEST intersection
+				let points = [];
+				let newpolygons = [];
+				for(let i=0;i<segments.length;i++){
+					let polygon = segments[i];
+					if(!polygon.iskey('polygon')){
+					  continue;
+					}
+					polygon.fillcolor=false;
+					let result = getIntersectionPoint(polygon,ray,points);		
+					if(result.breaking) {
+
+						let newborder=[];
+						let newpolygon = new Polygon();
+						let rubishStart = false;
+						
+						for(let z=0;z<polygon.border.length;z++){
+							let point=polygon.border[z];
+							if (!rubishStart){
+								if (!point.isnew){
+									newborder.push(point);
+								}
+								else{
+									rubishStart=true;						
+									newpolygon.border.push(expansion(point.breaking.b,{x:point.x,y:point.y}));
+									newborder.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
+								
+								}
+							}
+							else{
+								if (!point.isnew){
+									newpolygon.border.push(point);
+								}
+								else{
+									rubishStart=false;
+									newborder.push(expansion(point.breaking.b, {x:point.x,y:point.y}));
+									newpolygon.border.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
+									
+									point.isnew=null;
+								}
+							}					
+						}
+
+						polygon.border  = newborder;
+						newpolygons.push(newpolygon);
+					}
+						
+					
+				}
+				 // console.log('stop closestIntersect:' + newpolygons.length);
+				
+				for(var polygon of newpolygons){
+					segments.push(polygon);
+				}
+			}
+				
+			 
+			 
 		}
 		else{
 			selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));
@@ -266,11 +273,11 @@ mouseMoveListener = function(e){
 }
 
 keyDownListener = function(e){
-	let units =segments.filter(function(d){return d.hasSelect()});
-	units.control(e);
+	let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
+	units.forEach((d)=>d.control(e));
 }
 
-canvas.addEventListener('keydown',keyDownListener,true);
+window.addEventListener('keydown',keyDownListener,true);
 canvas.addEventListener("mousedown", mouseDownListener, false);
 canvas.addEventListener("mouseup", mouseUpListener, false);
 canvas.addEventListener("mousemove", mouseMoveListener, false);
