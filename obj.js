@@ -20,6 +20,7 @@ class Polygon {
 		lines.push({a:this.border[this.border.length-1],b:this.border[0]});
 		return lines;
 	}
+	
 	draw(ctx){
 		ctx.beginPath();
 		for(let a=0;a<this.border.length;a++){
@@ -47,12 +48,11 @@ class SelectRect{
 		this.w=0;
 		this.h=0;
 	}
-	mousemove(e){
-		
+	mouseMove(e){
 		this.w = e.pageX-this.x;
 		this.h = e.pageY-this.y;
 	}
-	dontMove(){
+	hasMove(){
 		return (this.w==this.h && this.h==0);
 	}
 	getZone(){
@@ -78,21 +78,51 @@ class SelectRect{
 	}
 }
 class Solder{
-	constructor(position,param){
+	constructor(position,canvas){
 		this.weight = 50;
 		this.speed=100/50;
 		this.selected=false;
 		this.pos = position;
+		this.canvas = canvas;
+		this.size = this.weight/5;
+		this.react =this.size;
+		this.drift={x:0,y:0};
 	}
 	draw(ctx){
+		
+	  this.drift.x =this.drift.x/1.1;
+	  if(Math.abs(this.drift.x)<0.1) this.drift.x=0;
+	  
+	  this.drift.y =this.drift.y/1.1;
+	  if(Math.abs(this.drift.y)<0.01) this.drift.y=0;
+	  
+	  this.pos.x += this.drift.x/2;
+	  this.pos.y += this.drift.y/2;
+	  
+	  //  todo: suxx.. need go sleep
+	  if(this.pos.x<this.size){
+		  this.pos.x = this.size;
+	  }
+	  if(this.pos.y<this.size){
+		  this.pos.y= this.size;
+	  }
+	  if(this.pos.y+this.size>this.canvas.height){
+		  this.pos.y=this.canvas.height-this.size;
+	  }
+	  if(this.pos.x+this.size>this.canvas.width){
+		  this.pos.x=this.canvas.width-this.size;
+	  }
+	  //
 	  ctx.beginPath();
-      ctx.arc(this.pos.x, this.pos.y, this.weight/5, 0, 2 * Math.PI, false);
+      ctx.arc(this.pos.x,this.pos.y,this.size , 0, 2 * Math.PI, false);
       ctx.fillStyle = 'green';
       ctx.fill();
       ctx.lineWidth =1;
       ctx.strokeStyle = this.selected?'#FF0000':'#003300';
       ctx.stroke();
+	 
 	}
+	
 	setSelect(select){
 		this.selected=select;
 	}
@@ -101,6 +131,7 @@ class Solder{
 	}
 	hasSelect(){ return this.selected;}
 	getPos(){
+		
 		return this.pos;
 	}
 	control(evt){
@@ -108,23 +139,28 @@ class Solder{
 			case 87:  /* up - [w]*/
 				if (this.pos.y - this.speed > 0){ 
 				this.pos.y -= this.speed;
+				this.drift.y-=this.react;
 				}
 			  break;
 			case 83:  /* down [s] */
-				if (this.pos.y + this.speed < 500){ 
+				if (this.pos.y + this.speed < (this.canvas.height-this.size)){ 
 				this.pos.y += this.speed;
+				this.drift.y+=this.react;
 				}
 			  break;
 			case 65:  /* left [a] */
 				if (this.pos.x - this.speed > 0){ 
 				this.pos.x -= this.speed;
+				this.drift.x-=this.react;
 				}
 			  break;
 			case 68:  /* right -[d] */
-				if (this.pos.x + this.speed < 500){ 
+				if (this.pos.x + this.speed < (this.canvas.width-this.size)){ 
 				this.pos.x += this.speed;
+				this.drift.x+=this.react;
 				}
 			break;
 		}
+	
 	}
 }

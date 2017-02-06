@@ -133,7 +133,7 @@ let segments = [
 	,// polygon #6*/
 	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}],'polygon #5')
 	
-	,new Solder({x: canvas.width/2,y: canvas.height/2})
+	,new Solder({x: canvas.width/2,y: canvas.height/2},canvas)
 	,
 ];
 
@@ -177,17 +177,16 @@ window.onload = function(){
 let selectRect = null;
 
 mouseDownListener = function(e){
-	
-	selectRect = new SelectRect(e);
-	
+	if(event.button==0)		{
+		selectRect = new SelectRect(e);
+		
+	}
+	return false;
 }
-mouseUpListener = function(e){
-	if(selectRect!==null){
-		if(selectRect.dontMove()){ 
-			
-			 
-			 
-			let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
+
+leftclickListener = function(e){
+	
+	let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
 			for(let unit of units)
 			{		
 				let position =unit.getPos();
@@ -251,13 +250,12 @@ mouseUpListener = function(e){
 					segments.push(polygon);
 				}
 			}
-				
-			 
-			 
-		}
-		else{
-			selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));
-		}
+			
+}
+mouseUpListener = function(e){
+	if(selectRect!==null){
+			
+			selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));			
 		selectRect=null;
 	}
 	
@@ -266,7 +264,7 @@ mouseUpListener = function(e){
 
 mouseMoveListener = function(e){
 	if(selectRect!==null){
-		selectRect.mousemove(e);
+		selectRect.mouseMove(e);
 	}
 	
 	
@@ -281,3 +279,9 @@ window.addEventListener('keydown',keyDownListener,true);
 canvas.addEventListener("mousedown", mouseDownListener, false);
 canvas.addEventListener("mouseup", mouseUpListener, false);
 canvas.addEventListener("mousemove", mouseMoveListener, false);
+canvas.addEventListener("contextmenu", leftclickListener, false);
+
+//ignore standart context menu
+ canvas.oncontextmenu = function() {   
+    return false;
+ }
