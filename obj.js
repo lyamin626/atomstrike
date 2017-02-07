@@ -87,8 +87,11 @@ class Solder{
 		this.size = this.weight/5;
 		this.react =this.size;
 		this.drift={x:0,y:0};
+		this.SAttack = {x:canvas.width/2,y:canvas.height/2};
 	}
 	draw(ctx){
+		
+	
 		
 	  this.drift.x =this.drift.x/1.1;
 	  if(Math.abs(this.drift.x)<0.1) this.drift.x=0;
@@ -106,12 +109,14 @@ class Solder{
 	  if(this.pos.y<this.size){
 		  this.pos.y= this.size;
 	  }
-	  if(this.pos.y+this.size>this.canvas.height){
-		  this.pos.y=this.canvas.height-this.size;
+	  if(this.pos.y+this.size*2>this.canvas.height){
+		  this.pos.y=this.canvas.height-this.size*2;
 	  }
-	  if(this.pos.x+this.size>this.canvas.width){
-		  this.pos.x=this.canvas.width-this.size;
+	  if(this.pos.x+this.size*2>this.canvas.width){
+		  this.pos.x=this.canvas.width-this.size*2;
 	  }
+	  
+	  
 	  //
 	  ctx.beginPath();
       ctx.arc(this.pos.x,this.pos.y,this.size , 0, 2 * Math.PI, false);
@@ -121,6 +126,12 @@ class Solder{
       ctx.strokeStyle = this.selected?'#FF0000':'#003300';
       ctx.stroke();
 	 
+	 
+	 ctx.moveTo(this.pos.x,this.pos.y);
+	 let posAtack= Helper.PointAtLine(50,this.pos,this.SAttack);
+	 //ctx.arc(this.pos.x,this.pos.y,50,Math.PI* this.Vatack/180,Math.PI* this.Vatack/180);
+	 ctx.lineTo(posAtack.x,posAtack.y);
+	  ctx.stroke();
 	}
 	
 	setSelect(select){

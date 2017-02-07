@@ -133,8 +133,8 @@ let segments = [
 	,// polygon #6*/
 	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}],'polygon #5')
 	
+	,new Solder({x: canvas.width/3,y: canvas.height/2},canvas)
 	,new Solder({x: canvas.width/2,y: canvas.height/2},canvas)
-	,
 ];
 
 
@@ -194,7 +194,9 @@ leftclickListener = function(e){
 					a:{x:position.x,y:position.y},
 					b:{x: event.clientX,y:event.clientY}
 				};
-
+				
+				
+				
 				// Find CLOSEST intersection
 				let points = [];
 				let newpolygons = [];
