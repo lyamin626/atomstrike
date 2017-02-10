@@ -61,7 +61,17 @@ class SelectRect{
 	selectSolder(unit){				
 		let zone = this.getZone();
 		unit.forEach(function(d){
-			d.setSelect(d.pos.x>=zone.x && d.pos.x<=zone.x1 && d.pos.y >=zone.y && d.pos.y<= zone.y1)
+			if(Math.abs(zone.x-zone.x1)<d.size && Math.abs(zone.y-zone.y1)<d.size)
+			{
+				d.setSelect((d.pos.x-zone.x)*(d.pos.x-zone.x) +  (d.pos.y-zone.y)*(d.pos.y-zone.y)  < 50*50);  	
+			}
+			else
+			{	
+				d.setSelect((d.pos.x>=zone.x && d.pos.y >=zone.y) &&  (d.pos.x<=zone.x1 && d.pos.y<= zone.y1));		
+				
+			}
+			
+			//(a-x)^2 + (b-y)^2 < R^2
 		});
 	}
 	draw(сtx){
@@ -90,9 +100,6 @@ class Solder{
 		this.SAttack = {x:canvas.width/2,y:canvas.height/2};
 	}
 	draw(ctx){
-		
-	
-		
 	  this.drift.x =this.drift.x/1.1;
 	  if(Math.abs(this.drift.x)<0.1) this.drift.x=0;
 	  
@@ -142,7 +149,6 @@ class Solder{
 	}
 	hasSelect(){ return this.selected;}
 	getPos(){
-		
 		return this.pos;
 	}
 	control(evt){
