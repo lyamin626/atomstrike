@@ -6,7 +6,10 @@ class Polygon {
     explosion() {
         console.log('notworking');
     }
-	getName(){return this.name;}
+	getMinMax(){
+		return {xmin:this.border.min(function(d){return d.x}),xmax:this.border.max(function(d){return d.x}),ymin:this.border.min(function(d){return d.y}),ymax:this.border.max(function(d){return d.y})};
+	}
+		getName(){return this.name;}
 	getLine(){
 		let lines =[];
 		for (let i=1;i<this.border.length;i++){
@@ -98,6 +101,10 @@ class Solder{
 		this.react =this.size;
 		this.drift={x:0,y:0};
 		this.SAttack = {x:canvas.width/2,y:canvas.height/2};
+		
+		this.nearMe =[]; // object for verfy iscollision at the moment;
+		this.collisionCoint=5; //only five object verfy for collision;
+		
 	}
 	draw(ctx){
 	  this.drift.x =this.drift.x/1.1;
@@ -109,18 +116,18 @@ class Solder{
 	  this.pos.x += this.drift.x/2;
 	  this.pos.y += this.drift.y/2;
 	  
-	  //  todo: suxx.. need go sleep
+	  
 	  if(this.pos.x<this.size){
 		  this.pos.x = this.size;
 	  }
 	  if(this.pos.y<this.size){
 		  this.pos.y= this.size;
 	  }
-	  if(this.pos.y+this.size*2>this.canvas.height){
-		  this.pos.y=this.canvas.height-this.size*2;
+	  if(this.pos.y+this.size>this.canvas.height){
+		  this.pos.y=this.canvas.height-this.size;
 	  }
-	  if(this.pos.x+this.size*2>this.canvas.width){
-		  this.pos.x=this.canvas.width-this.size*2;
+	  if(this.pos.x+this.size>this.canvas.width){
+		  this.pos.x=this.canvas.width-this.size;
 	  }
 	  
 	  
@@ -134,11 +141,17 @@ class Solder{
       ctx.stroke();
 	 
 	 
-	 ctx.moveTo(this.pos.x,this.pos.y);
+	 
+	  let startLine = Helper.PointAtLine(this.size,this.pos,this.SAttack);
+	  ctx.moveTo(startLine.x,startLine.y);
 	 let posAtack= Helper.PointAtLine(50,this.pos,this.SAttack);
 	 //ctx.arc(this.pos.x,this.pos.y,50,Math.PI* this.Vatack/180,Math.PI* this.Vatack/180);
 	 ctx.lineTo(posAtack.x,posAtack.y);
 	  ctx.stroke();
+	}
+	
+	getMinMax(){
+		return {xmin:this.pos.x-this.size,xmax:this.pos.x-this.size,ymin:this.pos.y-this.size,ymax:this.pos.y-this.size};
 	}
 	
 	setSelect(select){
@@ -151,7 +164,9 @@ class Solder{
 	getPos(){
 		return this.pos;
 	}
-	control(evt){
+	control(evt,barriers){
+		//move
+		let oldpos = this.pos;
 		  switch (evt.keyCode) {
 			case 87:  /* up - [w]*/
 				if (this.pos.y - this.speed > 0){ 
@@ -177,7 +192,21 @@ class Solder{
 				this.drift.x+=this.react;
 				}
 			break;
+			
+		
+		
+			
 		}
+			let realbarriears =barriers.filter(function(d){ 
+				let point = d.getMinMax();
+				let tpoint = this.getMinMax();
+				return point.xmin<tpoint.xmin && point.xmax<tpoint.xmax
+				&& point.ymin<tpoint.ymin && point.ymax<tpoint.ymax;
+			});
+					
+			if(realbarriears.length>0){
+				this.pos = oldpos;
+			}
 	
 	}
 }

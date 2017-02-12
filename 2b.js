@@ -94,7 +94,7 @@ function draw(){
 		
 	// Draw segments
 	ctx.lineWidth =1;
-	ctx.strokeStyle = "#999";
+	//ctx.strokeStyle = "#999";
 	for(let i=0;i<segments.length;i++){
 		segments[i].draw(ctx);		
 	}
@@ -134,7 +134,7 @@ let segments = [
 	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}],'polygon #5')
 	
 	,new Solder({x: canvas.width/3,y: canvas.height/2},canvas)
-	,new Solder({x: canvas.width/2,y: canvas.height/2},canvas)
+	,new Solder({x: canvas.width*2/3,y: canvas.height/2},canvas)
 ];
 
 
@@ -268,16 +268,15 @@ mouseMoveListener = function(e){
 	if(selectRect!==null){
 		selectRect.mouseMove(e);
 	}
-	
-	
 }
 
 keyDownListener = function(e){
 	let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
-	units.forEach((d)=>d.control(e));
+	units.forEach((d)=>d.control(e,segments));
 }
 
 window.addEventListener('keydown',keyDownListener,true);
+
 canvas.addEventListener("mousedown", mouseDownListener, false);
 canvas.addEventListener("mouseup", mouseUpListener, false);
 canvas.addEventListener("mousemove", mouseMoveListener, false);

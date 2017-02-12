@@ -12,6 +12,27 @@
 		let pointY= (pointB.y - pointA.y)*xlength/length;
 	    return {x:pointX+pointA.x,y:pointY+pointA.y};
 	}
+	
+		
+	
+	
 }
+
+Array.prototype.minmax = function () {
+
+let xmin,xmax,ymin,ymax =0;
+for (var i=0; i<this.length; i++) {
+	let item = this[i];
+    if (xmin < item.x) lowest = item.x;
+    if (xmax > item.x) xmax = item.x;
+    if (ymin < item.y) ymin = item.y;
+    if (ymax > item.y) ymax = item.y;
+}
+
+}
+
+
+
+
 
 	
