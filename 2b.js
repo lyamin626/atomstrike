@@ -41,13 +41,11 @@ function expansion(a,b){
 	let length = Math.sqrt(dx*dx+dy*dy);
 	if(length==0)
 	{
-		console.log('errpr');
+		console.log('error');
 		 return {x:0,y:0};
 	}
-	console.log()
 	let shiftx=rnd*dx/length;
 	let shifty=rnd*dy/length;
-	console.log({x:b.x+shiftx,y:b.y+shifty});
     return {x:b.x+shiftx,y:b.y+shifty};
 }
 
@@ -96,7 +94,7 @@ function draw(){
 	ctx.lineWidth =1;
 	//ctx.strokeStyle = "#999";
 	for(let i=0;i<segments.length;i++){
-		segments[i].draw(ctx);		
+		segments[i].draw(ctx,segments);		
 	}
 		
 	// for(let intersect of points.sort( (a,b)=>a.param-b.param))
@@ -120,21 +118,30 @@ function draw(){
 
 // LINE SEGMENTS
 let segments = [
-	// polygon #1
-	new Polygon([{x:100,y:150},{x:200,y:80},{x:140,y:210}],'polygon #1')
-	,// polygon #2
-	new Polygon([{x:100,y:200},{x:120,y:250},{x:60,y:300}],'polygon #2')
-	,// polygon #3
-	new Polygon([{x:200,y:260},{x:220,y:150},{x:300,y:200},{x:350,y:320}],'polygon #3')
-	,// polygon #4
-	new Polygon([{x:340,y:60},{x:360,y:40},{x:370,y:70}],'polygon #4')
-	,// polygon #5
-	new Polygon([{x:450,y:190},{x:560,y:170},{x:540,y:270}, {x:430,y:290}],'polygon #5')
-	,// polygon #6*/
-	new Polygon([{x:400,y:95}, {x:580,y:50},{x:480,y:150}],'polygon #5')
-	
-	,new Solder({x: canvas.width/3,y: canvas.height/2},canvas)
-	,new Solder({x: canvas.width*2/3,y: canvas.height/2},canvas)
+    // polygon #1
+    new Polygon([{ x: 100, y: 150 }, { x: 200, y: 80 }, { x: 140, y: 210 }], 'polygon #1')
+    ,// polygon #2
+    new Polygon([{ x: 100, y: 200 }, { x: 120, y: 250 }, { x: 60, y: 300 }], 'polygon #2')
+    ,// polygon #3
+    new Polygon([{ x: 200, y: 260 }, { x: 220, y: 150 }, { x: 300, y: 200 }, { x: 350, y: 320 }], 'polygon #3')
+    ,// polygon #4
+    new Polygon([{ x: 340, y: 60 }, { x: 360, y: 40 }, { x: 370, y: 70 }], 'polygon #4')
+    ,// polygon #5
+    new Polygon([{ x: 450, y: 190 }, { x: 560, y: 170 }, { x: 540, y: 270 }, { x: 430, y: 290 }], 'polygon #5')
+    ,// polygon #6*/
+    new Polygon([{ x: 400, y: 95 }, { x: 580, y: 50 }, { x: 480, y: 150 }], 'polygon #5')
+
+    , new Solder({ x: canvas.width - 50, y: canvas.height / 5 }, 'red', canvas)
+    , new Solder({ x: canvas.width - 50, y: canvas.height *2/ 5 }, 'red', canvas)
+    , new Solder({ x: canvas.width - 50, y: canvas.height *3/ 5 }, 'red', canvas)
+    , new Solder({ x: canvas.width - 50, y: canvas.height *4/ 5 }, 'red', canvas)
+
+    , new Solder({ x: 50, y: canvas.height / 5 }, 'green', canvas)
+    , new Solder({ x: 50, y: canvas.height * 2 / 5 }, 'green', canvas)
+    , new Solder({ x: 50, y: canvas.height * 3 / 5 }, 'green', canvas)
+    , new Solder({ x: 50, y: canvas.height * 4 / 5 }, 'green',canvas)
+
+
 ];
 
 
@@ -188,69 +195,77 @@ leftclickListener = function(e){
 	
 	let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
 			for(let unit of units)
-			{		
-				let position =unit.getPos();
-				let ray = {
-					a:{x:position.x,y:position.y},
-					b:{x: event.clientX,y:event.clientY}
-				};
-				
-				
-				
-				// Find CLOSEST intersection
-				let points = [];
-				let newpolygons = [];
-				for(let i=0;i<segments.length;i++){
-					let polygon = segments[i];
-					if(!polygon.iskey('polygon')){
-					  continue;
-					}
-					polygon.fillcolor=false;
-					let result = getIntersectionPoint(polygon,ray,points);		
-					if(result.breaking) {
+            {	
 
-						let newborder=[];
-						let newpolygon = new Polygon();
-						let rubishStart = false;
+
+                let bullet = unit.fire({ x: event.clientX, y: event.clientY });
+                if (bullet != null) {
+                    segments.push(bullet);
+                }
+                
+
+				//let position =unit.getPos();
+				//let ray = {
+				//	a:{x:position.x,y:position.y},
+				//	b:{x: event.clientX,y:event.clientY}
+				//};
+				
+				
+				
+				//// Find CLOSEST intersection
+				//let points = [];
+				//let newpolygons = [];
+				//for(let i=0;i<segments.length;i++){
+				//	let polygon = segments[i];
+				//	if(!polygon.iskey('polygon')){
+				//	  continue;
+				//	}
+				//	polygon.fillcolor=false;
+				//	let result = getIntersectionPoint(polygon,ray,points);		
+				//	if(result.breaking) {
+
+				//		let newborder=[];
+				//		let newpolygon = new Polygon();
+				//		let rubishStart = false;
 						
-						for(let z=0;z<polygon.border.length;z++){
-							let point=polygon.border[z];
-							if (!rubishStart){
-								if (!point.isnew){
-									newborder.push(point);
-								}
-								else{
-									rubishStart=true;						
-									newpolygon.border.push(expansion(point.breaking.b,{x:point.x,y:point.y}));
-									newborder.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
+				//		for(let z=0;z<polygon.border.length;z++){
+				//			let point=polygon.border[z];
+				//			if (!rubishStart){
+				//				if (!point.isnew){
+				//					newborder.push(point);
+				//				}
+				//				else{
+				//					rubishStart=true;						
+				//					newpolygon.border.push(expansion(point.breaking.b,{x:point.x,y:point.y}));
+				//					newborder.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
 								
-								}
-							}
-							else{
-								if (!point.isnew){
-									newpolygon.border.push(point);
-								}
-								else{
-									rubishStart=false;
-									newborder.push(expansion(point.breaking.b, {x:point.x,y:point.y}));
-									newpolygon.border.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
+				//				}
+				//			}
+				//			else{
+				//				if (!point.isnew){
+				//					newpolygon.border.push(point);
+				//				}
+				//				else{
+				//					rubishStart=false;
+				//					newborder.push(expansion(point.breaking.b, {x:point.x,y:point.y}));
+				//					newpolygon.border.push(expansion(point.breaking.a,{x:point.x,y:point.y}));
 									
-									point.isnew=null;
-								}
-							}					
-						}
+				//					point.isnew=null;
+				//				}
+				//			}					
+				//		}
 
-						polygon.border  = newborder;
-						newpolygons.push(newpolygon);
-					}
+				//		polygon.border  = newborder;
+				//		newpolygons.push(newpolygon);
+				//	}
 						
 					
-				}
-				 // console.log('stop closestIntersect:' + newpolygons.length);
+				//}
+				// // console.log('stop closestIntersect:' + newpolygons.length);
 				
-				for(var polygon of newpolygons){
-					segments.push(polygon);
-				}
+				//for(var polygon of newpolygons){
+				//	segments.push(polygon);
+				//}
 			}
 			
 }
