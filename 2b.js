@@ -93,9 +93,16 @@ function draw(){
 	// Draw segments
 	ctx.lineWidth =1;
 	//ctx.strokeStyle = "#999";
-	for(let i=0;i<segments.length;i++){
-		segments[i].draw(ctx,segments);		
-	}
+    let removeitems = [];
+    for (let i = 0; i < segments.length; i++){
+        let result = segments[i].draw(ctx, segments);
+        if (result =='remove') {
+            segments.splice(i, 1);
+            i--;
+        }
+    }
+
+    
 		
 	// for(let intersect of points.sort( (a,b)=>a.param-b.param))
 	// {			
@@ -196,21 +203,18 @@ leftclickListener = function(e){
 	let units =segments.filter((d) =>d.iskey('solder') && d.hasSelect());
 			for(let unit of units)
             {	
-
-
                 let bullet = unit.fire({ x: event.clientX, y: event.clientY });
                 if (bullet != null) {
                     segments.push(bullet);
                 }
-                
+
+
 
 				//let position =unit.getPos();
 				//let ray = {
 				//	a:{x:position.x,y:position.y},
 				//	b:{x: event.clientX,y:event.clientY}
 				//};
-				
-				
 				
 				//// Find CLOSEST intersection
 				//let points = [];
@@ -271,8 +275,7 @@ leftclickListener = function(e){
 }
 mouseUpListener = function(e){
 	if(selectRect!==null){
-			
-			selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));			
+	    selectRect.selectSolder(segments.filter(function(d){return d.iskey('solder')}));			
 		selectRect=null;
 	}
 	
