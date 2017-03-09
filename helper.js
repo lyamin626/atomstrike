@@ -1,5 +1,5 @@
 ﻿var Helper = {
-    //Длина отрезка из двух точек
+    ///Длина отрезка из двух точек
     SegmentLength: function (pointA, pointB) {
         let x = pointA.x - pointB.x;
         let y = pointA.y - pointB.y;

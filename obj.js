@@ -3,101 +3,51 @@ class Polygon {
         this.border = border || [];
         this.name = name;
         this.strokeStyle = 'gray';
+        this.center = null;
     }
     Center() {
-
-        let centerx = 0; let centery = 0;
-        for (let border of this.border) {
-            centerx += border.x;
-            centery += border.y;
+        if (this.center == null) {
+            let minmax = this.getMinMax();
+            this.center = { x: (minmax.xmin + minmax.xmax) / 2, y: (minmax.ymin + minmax.ymax) / 2 };
         }
-        let x = (centerx / this.border.length);
-        let y = (centery / this.border.length);
-        return { x:x , y:y  };
+        return this.center;
+    }
+    SetAngles() {
+        let c =this.Center();
+        for (let i = 0; i < this.border.length; i++) {
+            let p = this.border[i];
+            if (p.angle == null) {
+                p.angle = Math.atan2((p.y - c.y), (p.x - c.x));
+            }
+        }
     }
     Hit(bullet, near) {
-        this.border.push(bullet.point);
+        this.border.push( bullet.point);
         let center = this.Center();
-        this.border = this.border.sort(function (a, b) {
-            if (a.x - center.x >= 0 && b.x - center.x < 0)
-                return true;
-            if (a.x - center.x < 0 && b.x - center.x >= 0)
-                return false;
-            if (a.x - center.x == 0 && b.x - center.x == 0) {
-                if (a.y - center.y >= 0 || b.y - center.y >= 0)
-                    return a.y > b.y;
-                return b.y > a.y;
+        this.SetAngles();
+        this.border = this.border.sort(this.Sort);
+
+        for (let i = 1; i < this.border.length; i++) {
+            let length = Helper.SegmentLength(this.border[i - 1], this.border[i]);
+
+            if (length < 10) {
+                console.log(length);
+                if (bullet.point == this.border[i]) {
+                    this.border.splice(i, 1);
+                }
+                else {
+                    this.border.splice(i-1, 1);
+                }
+
             }
-            let det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
-            if (det < 0)
-                return true;
-            if (det > 0)
-                return false;
-            let d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
-            let d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
-            return d1 > d2;
-        });
-
-
-        //let minIndex = 0;
-        //let minLength = 99999;
-
-
-        //for (let i = 1; i < this.border.length; i++) {
-        //    let length = Helper.SegmentLength(bullet.point, this.border[i]);
-        //    if (minLength > length) {
-        //        minLength = length;
-        //        minIndex = i;
-        //    }
-        //}
-        ////tut zakonshil
-        //let firstpoint = {};
-        //let secondpoint = {};
-        //if (((minIndex + 1) == this.border.length)) {
-        //    firstpoint = this.border[minIndex];
-        //    secondpoint = this.border[0];
-        //}
-        //else {
-        //    firstpoint = this.border[minIndex];
-        //    secondpoint = this.border[minIndex+1];
-        //}
-        //let holeLength = 2 * bullet.str * bullet.radius;
-        //let length = Helper.SegmentLength(bullet.point, firstpoint);
-        //let pointA = Helper.PointAtLine(length - holeLength, firstpoint, secondpoint );
-        //let pointB = {
-        //    x: pointA.x + ((bullet.vel.x * bullet.str)/2),
-        //    y: pointA.y + ((bullet.vel.y * bullet.str)/2),
-        //};
-
-
-        //let pointD = Helper.PointAtLine(length + holeLength, firstpoint, secondpoint)
-
-        //let pointC = {
-        //    x: pointD.x + (bullet.vel.x * bullet.radius),
-        //    y: pointD.y + (bullet.vel.y * bullet.radius),
-        //};
-
-        //this.border.splice(minIndex+1, 0, pointA, pointB, pointC, pointD);
+        }
+        
     }
-    Sort ( a,  b){
-    if (a.x - center.x >= 0 && b.x - center.x < 0)
-        return true;
-    if (a.x - center.x < 0 && b.x - center.x >= 0)
-        return false;
-    if (a.x - center.x == 0 && b.x - center.x == 0) {
-        if (a.y - center.y >= 0 || b.y - center.y >= 0)
-            return a.y > b.y;
-        return b.y > a.y;
-    }
-    let det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
-    if (det < 0)
-        return true;
-    if (det > 0)
-        return false;
-    let d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
-    let d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
-    return d1 > d2;
-}
+    Sort(a, b) {
+            if (a.angle > b.angle) return 1;
+            else if (a.angle < b.angle) return -1;
+            return 0;
+        }
         
 getMinMax() {
     let xmin = 99999, xmax = 0, ymin = 99999, ymax = 0;
@@ -131,18 +81,29 @@ getLine() {
 draw(ctx) {
     ctx.beginPath();
     ctx.strokeStyle = this.strokeStyle;
+    let center = this.Center();
+
     for (let a = 0; a < this.border.length; a++) {
         let b = this.border[a];
         if (a == 0) {
+            
             ctx.moveTo(b.x, b.y)
-            ctx.font = "10px Arial";
-            ctx.fillText(b.x + ':'+ b.y, b.x, b.y);
+            //ctx.font = "10px Arial";
+            //ctx.fillText(b.angle, b.x, b.y);
         } else {
             ctx.lineTo(b.x, b.y);
-            ctx.font = "10px Arial";
-            ctx.fillText(b.x + ':' + b.y, b.x, b.y);
+            //ctx.font = "10px Arial";
+            //ctx.fillText(b.angle, b.x, b.y);
         }
+
     }
+
+    ctx.font = "10px Arial";
+    ctx.fillText('c', center.x, center.y);
+
+
+   
+
 
     ctx.closePath();
     ctx.stroke();
@@ -186,7 +147,7 @@ class SelectRect {
     draw(сtx) {
         ctx.strokeStyle = 'back';
         ctx.rect(this.x, this.y, this.w, this.h);
-        ctx.stroke()
+        ctx.stroke();
 
     }
     iskey(name) {
@@ -215,14 +176,21 @@ class Solder {
         this.collisionCoint = 5; //only five object verfy for collision;
 
     }
+    Hit() {
+        this.team = 'black';
+    }
     fire(pos) {
 
         let length = Helper.SegmentLength(this.pos, pos);
 
-        ///BulletSpeedAtMoment =4;
-        let vel = { x: (pos.x - this.pos.x) * 4 / length, y: (pos.y - this.pos.y) * 4 / length };
+        ///BulletSpeedAtMoment =9; 
 
-        let bullet = new Bullet({ x: this.pos.x, y: this.pos.y }, vel);
+        //random velosuty * [+ 0.5, - 0.5]
+        let rx = (0.5 - Math.random()) * 100;
+        let ry = (0.5- Math.random()) * 100;
+        let vel = { x: (rx+Math.round((pos.x - this.pos.x) * 900 / length)) / 100, y: (ry+Math.round((pos.y - this.pos.y) * 900 / length))/100 };
+        let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
+        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel);
 
         this.bullets.push(bullet);
         return bullet;
@@ -274,50 +242,9 @@ class Solder {
                 }
             }
         });
-
-
         //have collision or not
         if (realbarriears.length > 0) {
             let iscolision = false;
-            //check collision
-            //realbarriears.forEach(function (d) {
-            //    if (d.iskey('solder')) {
-            //        iscolision = true;
-            //        return;
-            //    }
-            //    if (d.iskey('polygon')) {
-            //        d.getLine().forEach(function (d) {
-            //            let minlength = Math.abs(Helper.MinLength(self.pos, d));
-            //            iscolision = size >= minlength;
-            //            if (iscolision) {
-            //                ctx.beginPath();
-            //                ctx.lineWidth = 3;
-            //                ctx.strokeStyle = 'red';
-            //                ctx.moveTo(d.a.x, d.a.y);
-            //                ctx.lineTo(d.b.x, d.b.y);
-            //                ctx.stroke();
-            //                ctx.closePath();
-            //            }
-            //            else {
-            //                ctx.lineWidth = 1;
-            //                ctx.strokeStyle = 'gray';
-            //                ctx.moveTo(d.a.x, d.a.y);
-            //                ctx.lineTo(d.b.x, d.b.y);
-            //                ctx.stroke();
-            //            }
-
-            //        });
-
-
-
-            //    }
-            //});
-
-
-
-            //if (iscolision) {
-            //    this.pos = oldpos;
-            //}
         }
 
         //
@@ -396,14 +323,13 @@ class Bullet {
     constructor(start, vel) {
         this.point = start;
         this.vel = vel;
-        this.radius = 3;
-        this.color = 'red';
+        this.radius = 1;
+        this.color = '#111';
         this.str = 1.3;
     }
     draw(ctx, barriers) {
 
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.fill();
         ctx.arc(this.point.x, this.point.y, this.radius, 0, Math.PI * 2, true);
         ctx.stroke();
@@ -449,36 +375,10 @@ class Bullet {
             realbarriears.forEach(function (d) {
                 if (d.iskey('solder')) {
                     // iscolision = true;
+                    d.Hit();
                     return;
                 }
                 if (d.iskey('polygon')) {
-                    //let borders = d.getLine();
-                    //for (let i = 0; i < borders.length; i++) {
-                    //    let line = borders[i];
-
-                    //    let minlength = Helper.MinLength(self.point, line);
-                    //    if (minlength > 0) {
-                    //        iscolision = size >= minlength;
-                    //        if (iscolision) {
-                    //            lineCollision = line;
-                    //            ctx.beginPath();
-                    //            ctx.lineWidth = 3;
-                    //            ctx.strokeStyle = 'yellow';
-                    //            ctx.moveTo(line.a.x, line.a.y);
-                    //            ctx.lineTo(line.b.x, line.b.y);
-                    //            ctx.stroke();
-                    //            ctx.closePath();
-                    //            break;
-                    //        }
-                    //        else {
-                    //            ctx.lineWidth = 1;
-                    //            ctx.strokeStyle = 'gray';
-                    //            ctx.moveTo(line.a.x, line.a.y);
-                    //            ctx.lineTo(line.b.x, line.b.y);
-                    //            ctx.stroke();
-                    //        }
-                    //    }
-                    //}
                     result = Helper.pointIsInPoly(self.point, d.border);
                 }
                 if (result.hit) {
@@ -491,11 +391,6 @@ class Bullet {
                 }
             });
             if (result.hit) return 'remove';
-            //{
-            //    this.pos = oldpos;
-
-
-            //}
         }
 
 
