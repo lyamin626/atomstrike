@@ -1,94 +1,9 @@
-
-function getIntersection(ray,segment){
-	let r_px = ray.a.x;
-	let r_py = ray.a.y;
-	let r_dx = ray.b.x-ray.a.x;
-	let r_dy = ray.b.y-ray.a.y;
-
-	let s_px = segment.a.x;
-	let s_py = segment.a.y;
-	let s_dx = segment.b.x-segment.a.x;
-	let s_dy = segment.b.y-segment.a.y;
-
-	let r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
-	let s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
-	if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag || r_dx==0){
-		return null;
-	}
-	let T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
-	let T1 = (s_px+s_dx*T2-r_px)/r_dx;
-
-	if(T1<0)	{		return null;}
-	if(T2<0 || T2>1) {  return null;}
-	
-	let result = {
-		x: r_px+r_dx*T1,
-		y: r_py+r_dy*T1,
-		param: T1
-	};
-      
-	return result;
-
-}
-
-function expansion(a,b){
-	//random expansion
-	let rnd= Math.random()*10%10;
-	let dx = a.x - b.x;
-	let dy = a.y - b.y;
-	if(dx<0) dx=0;
-	if(dy<0) dx=0;
-	let length = Math.sqrt(dx*dx+dy*dy);
-	if(length==0)
-	{
-		console.log('error');
-		 return {x:0,y:0};
-	}
-	let shiftx=rnd*dx/length;
-	let shifty=rnd*dy/length;
-    return {x:b.x+shiftx,y:b.y+shifty};
-}
-
-function getIntersectionPoint(segment,ray,points){
-	let counter = 0;
-	let border = segment.getLine();
-	let breaking = false;
-	let end =false;
-	segment.breaking =[]
-	let closestIntersect = null;
-		for(let i=0;i<border.length;i++){
-			
-		let intersect = getIntersection(ray,border[i]);
-		
-		if(!intersect) continue;
-			
-			counter++;
-		segment.border.splice([i+counter],0,{x:intersect.x,y:intersect.y,breaking:border[i],isnew:true});
-		
-		points.push(intersect);
-		
-		// if(!closestIntersect || intersect.param<closestIntersect.param){
-			// closestIntersect =  intersect;
-			// // end=true;
-			// segment.fillcolor=true;
-		// }
-		breaking=true;
-	}
-	return {end:end,counter:counter,breaking:breaking};
-}
-
-
-///////////////////////////////////////////////////////
-
 // DRAWING
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 function draw(){
-	
 	// Clear canvas  this part next for refactoring, all redraw is bad idea.
 	ctx.clearRect(0,0,canvas.width,canvas.height);
- 
-	
 		
 	// Draw segments
 	ctx.lineWidth =1;
@@ -101,8 +16,6 @@ function draw(){
             i--;
         }
     }
-
-    
 		
 	// for(let intersect of points.sort( (a,b)=>a.param-b.param))
 	// {			
