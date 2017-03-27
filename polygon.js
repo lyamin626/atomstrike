@@ -24,96 +24,25 @@
     }
     Hit(bullet, near) {
 
-
-
-    //    	//// Find CLOSEST intersection
-				//let points = [];
-				//let newpolygons = [];
-
-    //            let ray = {
-    //                a: {
-    //                    x: bullet.point.x,
-    //                    y: bullet.point.y
-    //                },
-    //                b: {
-    //                    x: bullet.point.x + bullet.vel.x,
-    //                    y: bullet.point.y + bullet.vel.y,
-    //                }
-    //            };
-    //            let result = Helper.getIntersectionPoint(this, ray, points);		
-				//	if(result.breaking) {
-				//		let newborder=[];
-    //                    this.breakSegment= new Polygon();
-				//		let rubishStart = false;
-
-				//		for(let z=0;z<this.border.length;z++){
-				//			let point=this.border[z];
-				//			if (!rubishStart){
-				//				if (!point.isnew){
-				//					newborder.push(point);
-				//				}
-				//				else{
-				//					rubishStart=true;						
-    //                                this.breakSegment.border.push(Helper.expansion(point.breaking.b,{x:point.x,y:point.y}));
-				//					newborder.push(Helper.expansion(point.breaking.a,{x:point.x,y:point.y}));
-
-				//				}
-				//			}
-				//			else{
-				//				if (!point.isnew){
-    //                                this.breakSegment.border.push(point);
-				//				}
-				//				else{
-				//					rubishStart=false;
-				//					newborder.push(Helper.expansion(point.breaking.b, {x:point.x,y:point.y}));
-    //                                this.breakSegment.border.push(Helper.expansion(point.breaking.a,{x:point.x,y:point.y}));
-
-				//					point.isnew=null;
-				//				}
-				//			}					
-				//		}
-
-				//		this.border  = newborder;
-						
-				//	}
-
-
-        let point =[]
-        let result = Helper.getIntersectionPoint(this, bullet.getRay(), point );
-        console.log(result, point,bullet.point);
+        let point = []
+        let result = Helper.getIntersectionPoint(this, bullet.getRay(), point);
+        console.log(result, point, bullet.point);
 
         this.border.push({ x: point[0].x + bullet.vel.x, y: point[0].y + bullet.vel.y });
-
-
-
-
-
-
-
         let center = this.Center();
         this.SetAngles();
         this.border = this.border.sort(this.Sort);
 
-        for (let i = 1; i < this.border.length; i++) {
-            let length = Helper.SegmentLength(this.border[i - 1], this.border[i]);
+        for (let i = 2; i < this.border.length; i++) {
+            let length = Helper.SegmentLength(this.border[i - 2], this.border[i]);
 
             if (length < 10) {
                 console.log(length);
-                if (bullet.point == this.border[i]) {
-                    this.border[i - 1] = {
-                        x: this.border[i - 1].x + bullet.vel.x,
-                        y: this.border[i - 1].y + bullet.vel.y
+                    this.border[i ] = {
+                        x: (this.border[i - 2].x + this.border[i].x)/2,
+                        y: (this.border[i -2].y + this.border[i ].y)/2
                     }
-                    this.border.splice(i, 1);
-                }
-                else {
-                    this.border[i] = {
-                        x: this.border[i ].x + bullet.vel.x,
-                        y: this.border[i ].y + bullet.vel.y
-                    }
-                    this.border.splice((i - 1), 1);
-
-                }
+                    this.border.splice(i-2, 2);
             }
         }
 
@@ -153,7 +82,7 @@
         return lines;
     }
 
-    draw(ctx,segments) {
+    draw(ctx, segments) {
         ctx.beginPath();
         ctx.strokeStyle = this.strokeStyle;
         let center = this.Center();
@@ -175,8 +104,6 @@
 
         ctx.font = "10px Arial";
         ctx.fillText('c', center.x, center.y);
-
-
 
 
 

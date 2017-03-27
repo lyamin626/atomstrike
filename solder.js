@@ -16,7 +16,6 @@ class Solder {
         this.SAttack = { x: canvas.width / 2, y: canvas.height / 2 };//atack vector - react dependence
 
 
-
         this.nearMe = []; // object for verfy iscollision at the moment;
         this.collisionCoint = 5; //only five object verfy for collision;
 
@@ -37,8 +36,6 @@ class Solder {
         this.SAttack = { x: pos.x, y: pos.y };
         let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
         let bullet = new Bullet({ x: gun.x, y: gun.y }, vel);
-
-        
 
         this.bullets.push(bullet);
         return bullet;
@@ -95,7 +92,6 @@ class Solder {
             let iscolision = false;
         }
 
-        //
         ctx.beginPath();
         ctx.strokeStyle = 'grey';
         ctx.arc(this.pos.x, this.pos.y, this.size, 0, 2 * Math.PI, false);
