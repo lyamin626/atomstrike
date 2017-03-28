@@ -1,22 +1,24 @@
 ﻿class Bullet {
-    constructor(start, vel) {
+    constructor(start, vel,shottime) {
         this.point = start;
         this.vel = vel;
         this.radius = 1;
         this.color = '#111';
         this.str = 1.3;
+        this.timer = shottime;
     }
     draw(ctx, barriers) {
-
         ctx.beginPath();
         ctx.fill();
         ctx.arc(this.point.x, this.point.y, this.radius, 0, Math.PI * 2, true);
         ctx.stroke();
 
+        let delta = timer - this.timer;
 
-        ///Todo:oh god, bullet speed depend on fps (redraw speed) >_<
-        this.point.x += this.vel.x;
-        this.point.y += this.vel.y;
+        this.point.x += this.vel.x * delta/10;
+        this.point.y += this.vel.y * delta / 10;
+
+        this.timer = timer;
 
         ctx.beginPath();
         ctx.fillStyle = 'red';
@@ -69,6 +71,7 @@
 
                 }
             });
+            //todo: think bad idea for remove need better
             if (result.hit) return 'remove';
         }
 
@@ -80,7 +83,7 @@
             a: { x: this.point.x, y: this.point.y },
             b: { x: this.point.x-this.vel.x, y: this.point.y-this.vel.y }
         };
-    }
+    };
     getMinMax() {
         return { xmin: this.point.x - this.radius, xmax: this.point.x - this.radius, ymin: this.point.y - this.radius, ymax: this.point.y - this.radius };
     };

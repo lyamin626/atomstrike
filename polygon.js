@@ -5,6 +5,8 @@
         this.strokeStyle = 'gray';
         this.center = null;
         this.breakSegment = null;
+        this.Area = this.calcArea();
+        this.AreaMinSize = 500;
     }
     Center() {
         if (this.center == null) {
@@ -26,7 +28,6 @@
 
         let point = []
         let result = Helper.getIntersectionPoint(this, bullet.getRay(), point);
-        console.log(result, point, bullet.point);
 
         this.border.push({ x: point[0].x + bullet.vel.x, y: point[0].y + bullet.vel.y });
         let center = this.Center();
@@ -35,9 +36,7 @@
 
         for (let i = 2; i < this.border.length; i++) {
             let length = Helper.SegmentLength(this.border[i - 2], this.border[i]);
-
             if (length < 10) {
-                console.log(length);
                     this.border[i ] = {
                         x: (this.border[i - 2].x + this.border[i].x)/2,
                         y: (this.border[i -2].y + this.border[i ].y)/2
@@ -45,7 +44,7 @@
                     this.border.splice(i-2, 2);
             }
         }
-
+        this.Area = this.calcArea();
     }
     Sort(a, b) {
         if (a.angle > b.angle) return 1;
@@ -113,9 +112,14 @@
             segments.push(this.breakSegment);
             this.breakSegment = null;
         }
+        if (this.Area < this.AreaMinSize) {
+            return 'remove';
+        }
     }
     iskey(name) {
         return name == 'polygon';
     }
-
+    calcArea() {
+        return Helper.getArea(this.border);
+    }
 }

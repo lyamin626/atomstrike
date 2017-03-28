@@ -2,7 +2,7 @@
 class Solder {
     constructor(position, team, canvas) {
         this.weight = 50;
-        this.speed = 100 / this.width;
+        this.speed = 100 / this.weight;
         this.selected = false;
         this.pos = position;
         this.canvas = canvas;
@@ -35,7 +35,7 @@ class Solder {
         let vel = { x: (rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, y: (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100 };
         this.SAttack = { x: pos.x, y: pos.y };
         let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
-        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel);
+        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel,timer);
 
         this.bullets.push(bullet);
         return bullet;

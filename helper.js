@@ -121,6 +121,15 @@
         }
         return { end: end, counter: counter, breaking: breaking };
     },
+    getArea(points) {
+        let area = 0;         
+        let length = points.length - 1;  
 
+        for (i = 0; i < points.length; i++) {
+            area = area + (points[i].x + points[length].x) * (points[i].y - points[length].y);
+            length = i;
+        }
+        return area / 2;
+    }
 }
 
