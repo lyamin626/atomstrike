@@ -10,7 +10,7 @@ function draw(timer){
 	//ctx.strokeStyle = "#999";
     let removeitems = [];
     for (let i = 0; i < battlefield.length; i++){
-        let result = battlefield[i].draw(ctx, battlefield);
+        let result = battlefield[i].draw(ctx, battlefield,ks);
         if (result =='remove') {
             battlefield.splice(i, 1);
             i--;
@@ -132,13 +132,21 @@ mouseMoveListener = function(e){
 		selectRect.mouseMove(e);
 	}
 }
+let ks= [];
+keyDownListener = function (e) {
+    ks[e.keyCode] = true;
 
-keyDownListener = function(e){
-    let units = battlefield.filter((d) =>d.iskey('solder') && d.hasSelect());
-    units.forEach((d) => d.control(e, battlefield));
+    //let units = battlefield.filter((d) =>d.iskey('solder') && d.hasSelect());
+    //units.forEach((d) => d.control(ks, battlefield));
+}
+keyUpListener = function (e) {
+    ks[e.keyCode] = false;
+    //let units = battlefield.filter((d) => d.iskey('solder') && d.hasSelect());
+    //units.forEach((d) => d.control(ks, battlefield));
 }
 
-window.addEventListener('keydown',keyDownListener,true);
+window.addEventListener('keydown', keyDownListener, true);
+window.addEventListener('keyup', keyUpListener, true);
 
 canvas.addEventListener("mousedown", mouseDownListener, false);
 canvas.addEventListener("mouseup", mouseUpListener, false);

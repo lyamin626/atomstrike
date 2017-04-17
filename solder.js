@@ -8,6 +8,7 @@ class Solder {
         this.canvas = canvas;
         this.size = this.weight / 5;
         this.team = team;
+        this.ks = [];
         this.bullets = [];
         //drift when run
         this.drift = { x: 0, y: 0 };
@@ -35,13 +36,39 @@ class Solder {
         let vel = { x: (rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, y: (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100 };
         this.SAttack = { x: pos.x, y: pos.y };
         let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
-        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel,timer);
+        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel, timer);
 
         this.bullets.push(bullet);
         return bullet;
     }
 
-    draw(ctx, barriers) {
+    draw(ctx, barriers, ks) {
+        if (this.selected) { //movment
+            if (ks[87]) { /* up - [w]*/
+                if (this.pos.y - this.speed > 0) {
+                    this.pos.y -= this.speed;
+                    //this.drift.y -= this.react;
+                }
+            }
+            if (ks[83]) { /* up - [w]*/
+                if (this.pos.y + this.speed < (this.canvas.height - this.size)) {
+                    this.pos.y += this.speed;
+                    //  this.drift.y += this.react;
+                }
+            }
+            if (ks[65]) { /* up - [w]*/
+                if (this.pos.x - this.speed > 0) {
+                    this.pos.x -= this.speed;
+                    //    this.drift.x -= this.react;
+                }
+            }
+            if (ks[68]) { /* up - [w]*/
+                if (this.pos.x + this.speed < (this.canvas.width - this.size)) {
+                    this.pos.x += this.speed;
+                    // this.drift.x += this.react;
+                }
+            }
+        }
 
         let oldpos = { x: this.pos.x, y: this.pos.y };
 
@@ -107,7 +134,6 @@ class Solder {
         let startLine = Helper.PointAtLine(this.size, this.pos, this.SAttack);
         ctx.moveTo(startLine.x, startLine.y);
         let posAtack = Helper.PointAtLine(50, this.pos, this.SAttack);
-        //ctx.arc(this.pos.x,this.pos.y,50,Math.PI* this.Vatack/180,Math.PI* this.Vatack/180);
         ctx.lineTo(posAtack.x, posAtack.y);
         ctx.stroke();
     }
@@ -126,34 +152,7 @@ class Solder {
     getPos() {
         return this.pos;
     }
-    control(evt) {
-        //move
-
-        switch (evt.keyCode) {
-            case 87:  /* up - [w]*/
-                if (this.pos.y - this.speed > 0) {
-                    this.pos.y -= this.speed;
-                    //this.drift.y -= this.react;
-                }
-                break;
-            case 83:  /* down [s] */
-                if (this.pos.y + this.speed < (this.canvas.height - this.size)) {
-                    this.pos.y += this.speed;
-                    //  this.drift.y += this.react;
-                }
-                break;
-            case 65:  /* left [a] */
-                if (this.pos.x - this.speed > 0) {
-                    this.pos.x -= this.speed;
-                    //    this.drift.x -= this.react;
-                }
-                break;
-            case 68:  /* right -[d] */
-                if (this.pos.x + this.speed < (this.canvas.width - this.size)) {
-                    this.pos.x += this.speed;
-                    // this.drift.x += this.react;
-                }
-                break;
-        }
+    control(keys) {
+        this.ks = keys;
     }
 }
