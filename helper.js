@@ -47,6 +47,24 @@
             hit: isInside, near: { x: minX, y: minY }
         };
     },
+    getReflectVector: function (v,s) {
+        let n = { x: s.b.x - s.a.x, y: s.b.y- s.a.y  }
+        let top = n.x * v.x + n.y * v.y;
+        let down = n.x * n.x + n.y * n.y;
+        let first = 2 * top / down;
+        let result = {
+            x: (n.x * first) - v.x, y: (n.y * first) - v.y
+        };
+        return result;
+    },
+
+    getAngle: function (s1, s2) {
+        let top = s1.x * x2.x + s1.y * x2.y;
+        let down1 = Math.sqrt((s1.x * s1.x) + (s1.y * s1.y));
+        let down2 = Math.sqrt((s2.x * s2.x) + (s2.y * s2.y));
+        let result = top / (down1 + down2);
+        return result;
+    },
     getIntersection: function (ray, segment) {
         let r_px = ray.a.x;
         let r_py = ray.a.y;
@@ -72,7 +90,8 @@
         let result = {
             x: r_px + r_dx * T1,
             y: r_py + r_dy * T1,
-            param: T1
+            param: T1,
+            target: segment
         };
 
         return result;

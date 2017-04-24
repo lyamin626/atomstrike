@@ -1,6 +1,7 @@
 ﻿class Bullet {
-    constructor(start, vel,shottime) {
+    constructor(start, vel,shottime, owner) {
         this.point = start;
+        this.owner = owner;
         this.vel = vel;
         this.radius = 1;
         this.color = '#111';
@@ -64,9 +65,9 @@
                 }
                 if (result.hit) {
                     try {
-                        d.Hit(self, result.near);
+                        d.Hit(self, result.near, self.owner);
                     } catch (e) {
-                        console.log('need release hit');
+                        console.log(e.message,'need release hit');
                     }
 
                 }

@@ -36,7 +36,7 @@ class Solder {
         let vel = { x: (rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, y: (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100 };
         this.SAttack = { x: pos.x, y: pos.y };
         let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
-        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel, timer);
+        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel, timer,this);
 
         this.bullets.push(bullet);
         return bullet;
@@ -100,7 +100,7 @@ class Solder {
         let self = this;
 
         let realbarriears = barriers.filter(function (d) {
-            if (d != self) {
+            if (d != self ) {
                 let point = d.getMinMax();
                 if (d.iskey('polygon')) {
                     return point.xmin < tpoint.xmin && point.xmax > tpoint.xmax

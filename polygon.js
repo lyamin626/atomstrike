@@ -24,11 +24,17 @@
             }
         }
     }
-    Hit(bullet, near) {
+    Hit(bullet, near,solder) {
 
         let point = []
         let result = Helper.getIntersectionPoint(this, bullet.getRay(), point);
+        for (var i = 0; i < point.length; i++) {
+            battlefield.push(new Ray(solder.pos, point[i]));
+            let reflect = Helper.getReflectVector(bullet.vel, point[i].target);
 
+            battlefield.push(new Ray(point[i], { x: point[i].x + reflect.x, y: point[i].y + reflect.y } ));
+        }
+        
         this.border.push({ x: point[0].x + bullet.vel.x, y: point[0].y + bullet.vel.y });
         let center = this.Center();
         this.SetAngles();
