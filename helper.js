@@ -149,6 +149,11 @@
             length = i;
         }
         return area / 2;
+    },
+
+    SumPoints(point1, point2) {
+        return { x: point1.x + point2.y, y: point1.y + point2.y };
     }
+
 }
 

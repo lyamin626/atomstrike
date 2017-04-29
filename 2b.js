@@ -11,9 +11,18 @@ function draw(timer){
     let removeitems = [];
     for (let i = 0; i < battlefield.length; i++){
         let result = battlefield[i].draw(ctx, battlefield,ks);
-        if (result =='remove') {
-            battlefield.splice(i, 1);
-            i--;
+        if (result != null) {
+            //todo:  stuped if, need sleep more
+            if (result.command == 'remove') {
+                battlefield.splice(i, 1);
+                i--;
+            }
+            if (result.add != null) {
+                for (var r = 0; r < result.add.length; r++) {
+                    battlefield.push(result.add[r]);
+                }
+            }
+
         }
     }
 		

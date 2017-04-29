@@ -53,6 +53,7 @@
             let iscolision = false;
             let lineCollision = null;
             let result = {};
+            
             //check collision
             realbarriears.forEach(function (d) {
                 if (d.iskey('solder')) {
@@ -65,7 +66,8 @@
                 }
                 if (result.hit) {
                     try {
-                        d.Hit(self, result.near, self.owner);
+                        result.add = d.Hit(self, result.near, self.owner);
+                        result.command = 'remove';
                     } catch (e) {
                         console.log(e.message,'need release hit');
                     }
@@ -73,7 +75,8 @@
                 }
             });
             //todo: think bad idea for remove need better
-            if (result.hit) return 'remove';
+            if (result.hit)
+                return result;
         }
 
 

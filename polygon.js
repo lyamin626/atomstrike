@@ -26,16 +26,19 @@
     }
     Hit(bullet, near,solder) {
 
-        let point = []
+        let point = [];
+        let reflects =[]
         let result = Helper.getIntersectionPoint(this, bullet.getRay(), point);
-        for (var i = 0; i < point.length; i++) {
-            battlefield.push(new Ray(solder.pos, point[i]));
+        for (let i = 0; i < point.length; i++) {
+            //battlefield.push(new Ray(solder.pos, point[i]));
             let reflect = Helper.getReflectVector(bullet.vel, point[i].target);
+            reflects.push(new Ricochet(point[i], reflect));
+           // battlefield.push();
+            this.border.push({ curve: true, x: point[0].x, y: point[0].y,  cp1x: point[0].x + bullet.vel.x, cp1y: point[0].y + bullet.vel.y });
 
-            battlefield.push(new Ray(point[i], { x: point[i].x + reflect.x, y: point[i].y + reflect.y } ));
         }
-        
-        this.border.push({ x: point[0].x + bullet.vel.x, y: point[0].y + bullet.vel.y });
+
+
         let center = this.Center();
         this.SetAngles();
         this.border = this.border.sort(this.Sort);
@@ -51,6 +54,7 @@
             }
         }
         this.Area = this.calcArea();
+        return reflects;
     }
     Sort(a, b) {
         if (a.angle > b.angle) return 1;
@@ -100,7 +104,14 @@
                 //ctx.font = "10px Arial";
                 //ctx.fillText(b.angle, b.x, b.y);
             } else {
-                ctx.lineTo(b.x, b.y);
+
+                if (b.curve){
+                    ctx.quadraticCurveTo(b.cp1x, b.cp1y, b.x, b.y);
+                }
+                else{
+                    ctx.lineTo(b.x, b.y);
+                }
+                
                 //ctx.font = "10px Arial";
                 //ctx.fillText(b.angle, b.x, b.y);
             }

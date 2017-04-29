@@ -5,13 +5,10 @@
     }
     draw(ctx, barriers) {
         ctx.beginPath();
-        ctx.moveTo(this.point1.x, this.point1.y);
-        ctx.stroke();
+       // ctx.moveTo(this.point1.x, this.point1.y);
         ctx.lineTo(this.point2.x, this.point2.y);
         ctx.stroke();
-
     }
-
     iskey(name) {
         return name == 'ray';
     }
