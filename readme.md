@@ -1,3 +1,3 @@
 atomstrike test scripts and idea
 
-https://jsfiddle.net/lyamin/ayjvnutu/12/
+<a href="https://jsfiddle.net/lyamin/ayjvnutu/12/"> test </a>
