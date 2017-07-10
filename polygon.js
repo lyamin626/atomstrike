@@ -27,30 +27,33 @@
     Hit(bullet, near,solder) {
 
         let point = [];
-        let reflects =[]
-        let result = Helper.getIntersectionPoint(this, bullet.getRay(), point);
+        let reflects = []
+        let ray = bullet.getRay();
+        let result = Helper.getIntersectionPoint(this,ray , point);
         for (let i = 0; i < point.length; i++) {
-            //battlefield.push(new Ray(solder.pos, point[i]));
-            let reflect = Helper.getReflectVector(bullet.vel, point[i].target);
-            reflects.push(new Ricochet(point[i], reflect));
-           // battlefield.push();
-            this.border.push({ curve: true, x: point[0].x, y: point[0].y,  cp1x: point[0].x + bullet.vel.x, cp1y: point[0].y + bullet.vel.y });
+            //battlefield.push(new Ray(solder.pos, p));
+            let p = point[i];
+            let v = Victor(p.target.a.x - p.target.b.x, p.target.a.y - p.target.b.y);
 
+            let reflect = Helper.getReflectVector(bullet.vel, v);
+          
+            reflects.push((new Ricochet(p, reflect)));
+               
+            this.border.push({ curve: true, x: point[0].x, y: point[0].y, cp1x: point[0].x + bullet.vel.x, cp1y: point[0].y + bullet.vel.y });
         }
-
 
         let center = this.Center();
         this.SetAngles();
         this.border = this.border.sort(this.Sort);
 
-        for (let i = 2; i < this.border.length; i++) {
-            let length = Helper.SegmentLength(this.border[i - 2], this.border[i]);
+        for (let i = 1; i < this.border.length; i++) {
+            let length = Helper.SegmentLength(this.border[i - 1], this.border[i]);
             if (length < 10) {
                     this.border[i ] = {
-                        x: (this.border[i - 2].x + this.border[i].x)/2,
-                        y: (this.border[i -2].y + this.border[i ].y)/2
+                        x: (this.border[i - 1].x + this.border[i].x)/2,
+                        y: (this.border[i -1].y + this.border[i ].y)/2
                     }
-                    this.border.splice(i-2, 2);
+                    //this.border.splice(i-1, 2);
             }
         }
         this.Area = this.calcArea();
@@ -96,17 +99,21 @@
         ctx.strokeStyle = this.strokeStyle;
         let center = this.Center();
 
-        for (let a = 0; a < this.border.length; a++) {
-            let b = this.border[a];
-            if (a == 0) {
+        for (let i = 0; i < this.border.length; i++) {
+            let b = this.border[i];
+            if (i == 0) {
 
                 ctx.moveTo(b.x, b.y)
                 //ctx.font = "10px Arial";
                 //ctx.fillText(b.angle, b.x, b.y);
             } else {
 
-                if (b.curve){
+                if (b.curve) {
                     ctx.quadraticCurveTo(b.cp1x, b.cp1y, b.x, b.y);
+                    //ctx.lineTo(a.x - b.x + deep, a.x - b.x + deep);
+                   // ctx.lineTo(b.x , b.y);
+                   // ctx.lineTo( b.x + deep,  b.x + deep);
+
                 }
                 else{
                     ctx.lineTo(b.x, b.y);
