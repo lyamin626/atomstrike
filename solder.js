@@ -33,7 +33,7 @@ class Solder {
         //random velosuty * [+ 0.5, - 0.5]
         let rx = (0.5 - Math.random()) * 100;
         let ry = (0.5 - Math.random()) * 100;
-        let vel = { x: (rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, y: (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100 };
+        let vel = new Victor((rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100 );
         this.SAttack = { x: pos.x, y: pos.y };
         let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
         let bullet = new Bullet({ x: gun.x, y: gun.y }, vel, timer,this);

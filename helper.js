@@ -47,11 +47,10 @@
             hit: isInside, near: { x: minX, y: minY }
         };
     },
-    getReflectVector: function (v,s) {
-        let n = { x: s.b.x - s.a.x, y: s.b.y- s.a.y  }
+    getReflectVector: function (v,n) {
         let top = n.x * v.x + n.y * v.y;
         let down = n.x * n.x + n.y * n.y;
-        let first = 2 * top / down;
+        let first = 2 *  top /  down;
         let result = {
             x: (n.x * first) - v.x, y: (n.y * first) - v.y
         };
@@ -127,7 +126,7 @@
             if (!intersect) continue;
 
             counter++;
-            segment.border.splice([i + counter], 0, { x: intersect.x, y: intersect.y, breaking: border[i], isnew: true });
+            //segment.border.splice([i + counter], 0, { x: intersect.x, y: intersect.y, breaking: border[i], isnew: true });
 
             points.push(intersect);
 
@@ -152,7 +151,7 @@
     },
 
     SumPoints(point1, point2) {
-        return { x: point1.x + point2.y, y: point1.y + point2.y };
+        return { x: point1.x + point2.x, y: point1.y + point2.y };
     }
 
 }
