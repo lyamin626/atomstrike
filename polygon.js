@@ -29,7 +29,8 @@
         let point = [];
         let reflects = []
         let ray = bullet.getRay();
-        let result = Helper.getIntersectionPoint(this,ray , point);
+        let result = Helper.getIntersectionPoint(this, ray, point);
+        let new_point = null;
         for (let i = 0; i < point.length; i++) {
             //battlefield.push(new Ray(solder.pos, p));
             let p = point[i];
@@ -38,8 +39,9 @@
             let reflect = Helper.getReflectVector(bullet.vel, v);
           
             reflects.push((new Ricochet(p, reflect)));
-               
+
             this.border.push({ curve: true, x: point[0].x, y: point[0].y, cp1x: point[0].x + bullet.vel.x, cp1y: point[0].y + bullet.vel.y });
+            
         }
 
         let center = this.Center();
@@ -49,11 +51,11 @@
         for (let i = 1; i < this.border.length; i++) {
             let length = Helper.SegmentLength(this.border[i - 1], this.border[i]);
             if (length < 10) {
-                    this.border[i ] = {
-                        x: (this.border[i - 1].x + this.border[i].x)/2,
-                        y: (this.border[i -1].y + this.border[i ].y)/2
-                    }
-                    //this.border.splice(i-1, 2);
+                this.border[i] = {
+                    x: (this.border[i - 1].x- ((this.border[i - 1].x - this.border[i].x) > 0 ? length : -length)),
+                    y: (this.border[i - 1].y - ((this.border[i - 1].y - this.border[i].y) > 0 ? length : -length))
+                }
+                    this.border.splice(i-1, 1);
             }
         }
         this.Area = this.calcArea();
