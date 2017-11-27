@@ -24,8 +24,6 @@
             else {
                 d.setSelect((d.pos.x >= zone.x && d.pos.y >= zone.y) && (d.pos.x <= zone.x1 && d.pos.y <= zone.y1));
             }
-
-            //(a-x)^2 + (b-y)^2 < R^2
         });
     }
     draw(сtx) {

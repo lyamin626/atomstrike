@@ -7,6 +7,7 @@
         this.color = '#111';
         this.str = 1.3;
         this.timer = shottime;
+        this.power = 10;
     }
     draw(ctx, barriers) {
         ctx.beginPath();

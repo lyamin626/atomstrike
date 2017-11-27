@@ -1,6 +1,6 @@
 ﻿
 class Solder {
-    constructor(position, team, canvas) {
+    constructor(position, team, canvas,weapon) {
         this.weight = 50;
         this.speed = 100 / this.weight;
         this.selected = false;
@@ -10,36 +10,42 @@ class Solder {
         this.team = team;
         this.ks = [];
         this.bullets = [];
+        this.weapon = weapon||1; //weapon soon
+        this.aim = 200;///aim character
         //drift when run
         this.drift = { x: 0, y: 0 };
-
-        this.react = this.size;
+        this.react = this.size; //temp value this.size
         this.SAttack = { x: canvas.width / 2, y: canvas.height / 2 };//atack vector - react dependence
-
 
         this.nearMe = []; // object for verfy iscollision at the moment;
         this.collisionCoint = 5; //only five object verfy for collision;
-
     }
     Hit() {
-        this.team = 'black';
+        this.team = 'black'; //dead
     }
     fire(pos) {
-
+        
+        
         let length = Helper.SegmentLength(this.pos, pos);
 
         ///BulletSpeedAtMoment =9; 
 
-        //random velosuty * [+ 0.5, - 0.5]
-        let rx = (0.5 - Math.random()) * 100;
-        let ry = (0.5 - Math.random()) * 100;
-        let vel = new Victor((rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100 );
-        this.SAttack = { x: pos.x, y: pos.y };
-        let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
-        let bullet = new Bullet({ x: gun.x, y: gun.y }, vel, timer,this);
+        //weapon rules hire
+        //temporary
+        let bullets = [];
+        for (var i = 0; i < this.weapon; i++) {
+            //random velosuty * [+ 0.5, - 0.5]
+            let rx = (0.5 - Math.random()) * this.aim;
+            let ry = (0.5 - Math.random()) * this.aim;
+            let vel = new Victor((rx + Math.round((pos.x - this.pos.x) * 900 / length)) / 100, (ry + Math.round((pos.y - this.pos.y) * 900 / length)) / 100);
+            this.SAttack = { x: pos.x, y: pos.y };
+            let gun = Helper.PointAtLine(50, this.pos, this.SAttack);
+            let bullet = new Bullet({ x: gun.x, y: gun.y }, vel, timer, this);
 
-        this.bullets.push(bullet);
-        return bullet;
+            this.bullets.push(bullet);
+            bullets.push(bullet);
+        }
+        return bullets;
     }
 
     draw(ctx, barriers, ks) {
@@ -50,19 +56,19 @@ class Solder {
                     //this.drift.y -= this.react;
                 }
             }
-            if (ks[83]) { /* up - [w]*/
+            if (ks[83]) { /* bottom - [s]*/
                 if (this.pos.y + this.speed < (this.canvas.height - this.size)) {
                     this.pos.y += this.speed;
                     //  this.drift.y += this.react;
                 }
             }
-            if (ks[65]) { /* up - [w]*/
+            if (ks[65]) { /* left - [a]*/
                 if (this.pos.x - this.speed > 0) {
                     this.pos.x -= this.speed;
                     //    this.drift.x -= this.react;
                 }
             }
-            if (ks[68]) { /* up - [w]*/
+            if (ks[68]) { /* right - [d]*/
                 if (this.pos.x + this.speed < (this.canvas.width - this.size)) {
                     this.pos.x += this.speed;
                     // this.drift.x += this.react;
@@ -99,8 +105,8 @@ class Solder {
         let size = this.size;
         let self = this;
 
-        let realbarriears = barriers.filter(function (d) {
-            if (d != self ) {
+        let realbarriers = barriers.filter(function (d) {
+            if (d != self) {
                 let point = d.getMinMax();
                 if (d.iskey('polygon')) {
                     return point.xmin < tpoint.xmin && point.xmax > tpoint.xmax
@@ -115,7 +121,7 @@ class Solder {
             }
         });
         //have collision or not
-        if (realbarriears.length > 0) {
+        if (realbarriers.length > 0) {
             let iscolision = false;
         }
 
@@ -129,12 +135,12 @@ class Solder {
         ctx.strokeStyle = this.selected ? '#FF0000' : '#003300';
         ctx.stroke();
 
-
-
+        ctx.lineWidth = this.weapon;
         let startLine = Helper.PointAtLine(this.size, this.pos, this.SAttack);
         ctx.moveTo(startLine.x, startLine.y);
-        let posAtack = Helper.PointAtLine(50, this.pos, this.SAttack);
+        let posAtack = Helper.PointAtLine(35, this.pos, this.SAttack);
         ctx.lineTo(posAtack.x, posAtack.y);
+
         ctx.stroke();
     }
 

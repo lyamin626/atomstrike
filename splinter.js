@@ -15,13 +15,5 @@
             ctx.lineTo(posAtack.x, posAtack.y);
             ctx.stroke();
         }
-        //cosA  = : угол скалярное произведение векторов ./  длины векторов
-        //
-        
-
-
     }
-
-
-
 }

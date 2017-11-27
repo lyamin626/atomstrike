@@ -40,8 +40,10 @@
           
             reflects.push((new Ricochet(p, reflect)));
 
-            this.border.push({ curve: true, x: point[0].x, y: point[0].y, cp1x: point[0].x + bullet.vel.x, cp1y: point[0].y + bullet.vel.y });
-            
+            //this.border.push(Helper.PointAtLine(bullet.power, p, v));
+
+            this.border.push({ x: point[0].x + bullet.vel.x, y: point[0].y + bullet.vel.y });
+            //this.border.push({ x: point[0].x - bullet.vel.x, y: point[0].y - bullet.vel.y })
         }
 
         let center = this.Center();
@@ -113,24 +115,20 @@
                 if (b.curve) {
                     ctx.quadraticCurveTo(b.cp1x, b.cp1y, b.x, b.y);
                     //ctx.lineTo(a.x - b.x + deep, a.x - b.x + deep);
-                   // ctx.lineTo(b.x , b.y);
-                   // ctx.lineTo( b.x + deep,  b.x + deep);
+                    //ctx.lineTo(b.x , b.y);
+                    //ctx.lineTo( b.x + deep,  b.x + deep);
 
                 }
                 else{
                     ctx.lineTo(b.x, b.y);
                 }
-                
                 //ctx.font = "10px Arial";
                 //ctx.fillText(b.angle, b.x, b.y);
             }
-
         }
 
-        ctx.font = "10px Arial";
-        ctx.fillText('c', center.x, center.y);
-
-
+        //ctx.font = "10px Arial";
+        //ctx.fillText('c', center.x, center.y);
 
         ctx.closePath();
         ctx.stroke();
